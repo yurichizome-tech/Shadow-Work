@@ -5,34 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sovereign Vault</title>
     <style>
-        :root { --bg: #050505; --panel: #111; --text: #b0b0b0; --accent: #ff3e3e; --gold: #c5a059; --green: #4ade80; }
-        body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; padding-bottom: 50px; }
-        .nav { display: flex; justify-content: center; gap: 15px; padding: 20px; border-bottom: 1px solid #1a1a1a; position: sticky; top: 0; background: var(--bg); z-index: 100; }
-        .nav-btn { background: none; border: none; color: #444; cursor: pointer; font-size: 0.7rem; letter-spacing: 2px; padding: 10px; }
-        .nav-btn.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
-        .container { width: 95%; max-width: 800px; margin: auto; padding-top: 20px; }
+        :root { --bg: #050505; --panel: #111; --text: #b0b0b0; --accent: #ff3e3e; --gold: #c5a059; --green: #4ade80; --glow: 0 0 15px rgba(74, 222, 128, 0.3); }
+        body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; padding-bottom: 50px; overflow-x: hidden; }
+        
+        /* Navigation */
+        .nav { display: flex; justify-content: center; gap: 15px; padding: 20px; border-bottom: 1px solid #1a1a1a; sticky; top: 0; background: var(--bg); z-index: 100; }
+        .nav-btn { background: none; border: none; color: #444; cursor: pointer; font-size: 0.7rem; letter-spacing: 2px; padding: 10px; transition: 0.3s; }
+        .nav-btn.active { color: var(--gold); border-bottom: 2px solid var(--gold); text-shadow: 0 0 10px var(--gold); }
+
+        /* Momentum Bar */
+        .momentum-container { width: 90%; max-width: 800px; margin: 10px auto; background: #111; height: 8px; border-radius: 10px; overflow: hidden; border: 1px solid #222; }
+        #momentum-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--gold), var(--green)); transition: width 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: var(--glow); }
+
+        .container { width: 95%; max-width: 800px; margin: auto; padding-top: 10px; }
         .view { display: none; }
         .view.active { display: block; }
         
-        /* Tally Grid */
-        .tally-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .tally-card { background: var(--panel); border: 1px solid #222; padding: 15px; text-align: center; cursor: pointer; border-radius: 4px; }
-        .count { display: block; font-size: 1.8rem; color: var(--green); }
+        /* Tally Cards */
+        .tally-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .tally-card { background: var(--panel); border: 1px solid #222; padding: 15px; text-align: center; cursor: pointer; border-radius: 4px; transition: 0.2s; }
+        .tally-card:hover { border-color: var(--gold); background: #151515; }
+        .tally-card:active { transform: scale(0.95); border-color: var(--green); }
+        .count { display: block; font-size: 1.8rem; color: var(--green); text-shadow: var(--glow); }
         
-        /* Input & Projects */
+        /* Project Styling */
         .input-group { display: flex; gap: 5px; margin-bottom: 20px; }
-        input[type="text"], input[type="password"] { flex: 1; background: #000; border: 1px solid #333; color: white; padding: 12px; font-family: inherit; }
-        .add-btn { background: var(--gold); border: none; color: black; padding: 10px; cursor: pointer; font-weight: bold; }
-        .proj-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #111; background: #080808; margin-bottom: 5px; }
-        .status-btn { background: #111; border: 1px solid #333; color: #444; padding: 5px 10px; cursor: pointer; font-size: 0.6rem; margin-left: 5px; }
-        .status-btn.done { color: var(--green); border-color: var(--green); }
+        input { background: #000; border: 1px solid #333; color: white; padding: 12px; font-family: inherit; }
+        .add-btn { background: var(--gold); border: none; color: black; padding: 10px 20px; cursor: pointer; font-weight: bold; }
+        .proj-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #111; background: #080808; margin-bottom: 5px; border-radius: 4px; }
+        .status-btn { background: #111; border: 1px solid #333; color: #444; padding: 8px 12px; cursor: pointer; font-size: 0.6rem; border-radius: 3px; }
+        .status-btn.done { color: var(--green); border-color: var(--green); box-shadow: var(--glow); }
 
-        /* Log */
-        #event-log { height: 150px; overflow-y: auto; font-size: 0.7rem; border-left: 1px solid #222; padding-left: 10px; margin-top: 20px; color: #666; line-height: 1.5; }
-        .purge-btn { color: #300; font-size: 0.6rem; border: none; background: none; cursor: pointer; margin-top: 15px; }
+        /* Log Display */
+        #event-log { height: 180px; overflow-y: auto; font-size: 0.75rem; border-left: 2px solid #1a1a1a; padding-left: 15px; margin-top: 30px; color: #555; scrollbar-width: thin; }
+        .log-entry { margin-bottom: 6px; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        #vault-lock { text-align: center; margin-top: 50px; padding: 30px; border: 1px solid #1a1a1a; }
-        textarea { width: 100%; height: 300px; background: #080000; color: var(--accent); border: 1px solid #300; padding: 15px; font-family: inherit; box-sizing: border-box; resize: none; }
+        /* The Void */
+        textarea { width: 100%; height: 350px; background: #050000; color: var(--accent); border: 1px solid #300; padding: 20px; font-family: inherit; box-sizing: border-box; resize: none; font-size: 1rem; }
+        
         .hidden { display: none !important; }
     </style>
 </head>
@@ -44,23 +55,29 @@
     <button id="btn-sha" class="nav-btn" onclick="go('shadow')">SHADOW</button>
 </div>
 
+<div class="momentum-container">
+    <div id="momentum-fill"></div>
+</div>
+
 <div class="container">
     <div id="sovereign" class="view active">
-        <div id="clock" style="font-size: 1.5rem; text-align: center; color: var(--gold); margin-bottom: 20px;">00:00:00</div>
+        <div id="clock" style="font-size: 1.5rem; text-align: center; color: var(--gold); margin-bottom: 20px; letter-spacing: 3px;">00:00:00</div>
+        
         <div class="tally-grid">
             <div class="tally-card" onclick="logEvent('no', 'SAID NO')"><span id="v-no" class="count">0</span>NO</div>
             <div class="tally-card" onclick="logEvent('silence', 'SILENCE')"><span id="v-silence" class="count">0</span>SILENCE</div>
             <div class="tally-card" onclick="logEvent('sorry', 'NO SORRY')"><span id="v-sorry" class="count">0</span>SORRY</div>
             <div class="tally-card" onclick="logEvent('ward', 'WARD HELD')"><span id="v-ward" class="count">0</span>WARD</div>
         </div>
+
         <div id="event-log"></div>
-        <button class="purge-btn" onclick="clearLog()">[ RESET DAILY LOG ]</button>
+        <button style="color:#200; border:none; background:none; cursor:pointer; font-size:0.6rem; margin-top:20px;" onclick="clearLog()">[ RESET DAILY FREQUENCY ]</button>
     </div>
 
     <div id="projects" class="view">
         <div class="input-group">
-            <input type="text" id="newProjTask" placeholder="Task Name...">
-            <input type="text" id="newProjCat" placeholder="Category..." style="flex: 0.5;">
+            <input type="text" id="newProjTask" placeholder="New Cycle...">
+            <input type="text" id="newProjCat" placeholder="Area..." style="width: 80px;">
             <button class="add-btn" onclick="addProject()">ADD</button>
         </div>
         <div id="proj-list"></div>
@@ -68,13 +85,13 @@
 
     <div id="shadow" class="view">
         <div id="vault-lock">
-            <h2 style="letter-spacing: 5px; color: #1a1a1a;">KLEIDOUCHOS</h2>
-            <input type="password" id="passInput" placeholder="Speak the Word">
-            <button onclick="unlockVault()" style="display:block; margin: 15px auto; color:#444; background:none; border:1px solid #222; padding:10px 20px; cursor:pointer;">ENGAGE</button>
+            <h2 style="letter-spacing: 8px; color: #151515; margin-bottom: 30px;">KLEIDOUCHOS</h2>
+            <input type="password" id="passInput" placeholder="Speak the Word" style="text-align: center; width: 250px;">
+            <button onclick="unlockVault()" style="display:block; margin: 20px auto; color:#555; background:none; border:1px solid #333; padding:12px 30px; cursor:pointer; letter-spacing: 2px;">ENGAGE</button>
         </div>
         <div id="vault-content" class="hidden">
-            <textarea id="void-text" placeholder="Release the rot..."></textarea>
-            <button onclick="burn()" style="width:100%; padding:20px; background:#200; color:var(--accent); border:1px solid var(--accent); cursor:pointer; font-weight: bold;">PURGE TO VOID</button>
+            <textarea id="void-text" placeholder="Is this rot yours, or was it given to you? Purge it here..."></textarea>
+            <button onclick="burn()" style="width:100%; padding:25px; background:#200; color:var(--accent); border:1px solid var(--accent); cursor:pointer; font-weight: bold; letter-spacing: 5px; margin-top: 15px;">PURGE TO THE VOID</button>
         </div>
     </div>
 </div>
@@ -90,7 +107,6 @@
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         document.getElementById('btn-' + id.substring(0,3)).classList.add('active');
-        
         if(id !== 'shadow') { 
             document.getElementById('vault-lock').classList.remove('hidden'); 
             document.getElementById('vault-content').classList.add('hidden'); 
@@ -110,14 +126,14 @@
         const finalLabel = detail ? `${label}: ${detail}` : label;
         state[key]++;
         const time = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
-        history.unshift(`[${time}] ${finalLabel}`);
+        history.unshift(`<span style="color:var(--gold)">[${time}]</span> ${finalLabel}`);
         if(history.length > 50) history.pop();
         saveAndRefresh();
     }
 
     function addProject() {
         const task = document.getElementById('newProjTask').value;
-        const cat = document.getElementById('newProjCat').value || "General";
+        const cat = document.getElementById('newProjCat').value || "TRIAGE";
         if(task.trim() !== "") {
             chores.push({ task: task, cat: cat, done: false });
             document.getElementById('newProjTask').value = "";
@@ -128,8 +144,8 @@
 
     function toggleDone(i) { chores[i].done = !chores[i].done; saveAndRefresh(); }
     function removeProject(i) { chores.splice(i, 1); saveAndRefresh(); }
-    function clearLog() { if(confirm("Purge Log?")) { history = []; saveAndRefresh(); } }
-    function burn() { document.getElementById('void-text').value = ""; alert("Purged."); go('sovereign'); }
+    function clearLog() { if(confirm("Confirm: Clear the Daily Frequency?")) { history = []; state = { no:0, silence:0, sorry:0, ward:0, start: Date.now() }; saveAndRefresh(); } }
+    function burn() { document.getElementById('void-text').value = ""; alert("The crows have taken it."); go('sovereign'); }
 
     function saveAndRefresh() {
         localStorage.setItem('sov_state', JSON.stringify(state));
@@ -139,31 +155,5 @@
     }
 
     function refreshUI() {
-        ['no','silence','sorry','ward'].forEach(k => {
-            const el = document.getElementById(`v-${k}`);
-            if(el) el.innerText = state[k];
-        });
-        document.getElementById('event-log').innerHTML = history.map(e => `<div>${e}</div>`).join('');
-        document.getElementById('proj-list').innerHTML = chores.map((c, i) => `
-            <div class="proj-row">
-                <div>
-                    <small style="color:var(--gold); display:block; font-size:0.6rem;">${c.cat.toUpperCase()}</small>
-                    <span style="${c.done ? 'text-decoration:line-through; color:#444' : ''}">${c.task}</span>
-                </div>
-                <div>
-                    <button class="status-btn ${c.done ? 'done' : ''}" onclick="toggleDone(${i})">${c.done ? 'DONE' : 'DO'}</button>
-                    <button class="status-btn" onclick="removeProject(${i})" style="color:#300; border:none;">[X]</button>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    setInterval(() => {
-        let diff = Date.now() - state.start;
-        document.getElementById('clock').innerText = new Date(diff).toISOString().substr(11, 8);
-    }, 1000);
-
-    window.onload = refreshUI;
-</script>
-</body>
-</html>
+        ['no','silence','sorry','ward'].forEach(k => { if(document.getElementById(`v-${k}`)) document.getElementById(`v-${k}`).innerText = state[k]; });
+        document.getElementById('event-log').innerHTML = history.map(e => `<div class="log-entry">${e
