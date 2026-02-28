@@ -7,177 +7,122 @@
     <style>
         :root { --bg: #050505; --gold: #c5a059; --green: #4ade80; --accent: #ff3e3e; }
         body { background: var(--bg); color: #b0b0b0; font-family: 'Courier New', monospace; margin: 0; padding: 20px; text-align: center; }
-        
-        /* Navigation */
         .nav { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; border-bottom: 1px solid #1a1a1a; padding-bottom: 10px; }
         .nav-btn { background: none; border: none; color: #444; cursor: pointer; font-size: 0.8rem; letter-spacing: 2px; }
         .nav-btn.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
-
-        /* Momentum & Clock */
-        #bar-bg { background: #111; height: 12px; width: 100%; max-width: 600px; border: 1px solid #222; margin: 15px auto; border-radius: 10px; overflow: hidden; }
-        #bar-fill { background: linear-gradient(90deg, var(--gold), var(--green)); height: 100%; width: 0%; transition: 0.5s; box-shadow: 0 0 15px rgba(74, 222, 128, 0.3); }
-        #clock { font-size: 1.5rem; color: var(--gold); margin-bottom: 10px; letter-spacing: 3px; }
-
-        /* Tally Grid */
+        #bar-bg { background: #111; height: 10px; width: 100%; max-width: 600px; border: 1px solid #222; margin: 15px auto; border-radius: 10px; overflow: hidden; }
+        #bar-fill { background: linear-gradient(90deg, var(--gold), var(--green)); height: 100%; width: 0%; transition: 0.5s; }
+        #clock { font-size: 1.5rem; color: var(--gold); margin-bottom: 10px; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 600px; margin: auto; }
         .card { background: #111; border: 1px solid #222; padding: 20px; cursor: pointer; border-radius: 8px; }
-        .card:active { transform: scale(0.95); border-color: var(--green); }
-        .count-num { display: block; font-size: 1.8rem; color: var(--green); font-weight: bold; }
-
-        /* View Management */
         .view { display: none; max-width: 600px; margin: auto; text-align: left; }
         .view.active { display: block; }
-
-        /* Input Styles */
-        input, textarea { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; margin-bottom: 10px; font-family: inherit; box-sizing: border-box; }
-        .item-row { background: #0a0a0a; padding: 12px; border-left: 3px solid var(--gold); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-radius: 4px; }
-        
-        /* The Log */
-        #log { margin-top: 30px; height: 180px; overflow-y: auto; font-size: 0.8rem; color: #666; text-align: left; border-top: 1px solid #1a1a1a; padding-top: 15px; }
-        
+        input { width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 12px; margin-bottom: 10px; font-family: inherit; box-sizing: border-box; }
+        .item-row { background: #0a0a0a; padding: 15px; border-left: 3px solid var(--gold); margin-bottom: 10px; border-radius: 4px; }
+        .subtask { font-size: 0.8rem; color: #666; padding-left: 15px; margin-top: 5px; cursor: pointer; }
+        .subtask.done { text-decoration: line-through; color: var(--green); }
+        #log { margin-top: 30px; height: 150px; overflow-y: auto; font-size: 0.8rem; color: #444; border-top: 1px solid #1a1a1a; padding-top: 15px; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
-
-    <div class="nav">
-        <button onclick="go('sov')" id="n-sov" class="nav-btn active">SOVEREIGNTY</button>
-        <button onclick="go('prj')" id="n-prj" class="nav-btn">PROJECTS</button>
-        <button onclick="go('sha')" id="n-sha" class="nav-btn">SHADOW</button>
-    </div>
-
+    <div class="nav"><button onclick="go('sov')" id="n-sov" class="nav-btn active">SOVEREIGNTY</button><button onclick="go('prj')" id="n-prj" class="nav-btn">PROJECTS</button><button onclick="go('sha')" id="n-sha" class="nav-btn">SHADOW</button></div>
     <h2 id="clock">00:00:00</h2>
     <div id="bar-bg"><div id="bar-fill"></div></div>
 
     <div id="v-sov" class="view active">
         <div class="grid">
-            <div class="card" onclick="hit('NO')"><span id="c-no" class="count-num">0</span>SAID NO</div>
-            <div class="card" onclick="hit('SILENCE')"><span id="c-sil" class="count-num">0</span>SILENCE</div>
-            <div class="card" onclick="hit('SORRY')"><span id="c-sor" class="count-num">0</span>NO SORRY</div>
-            <div class="card" onclick="hit('WARD')"><span id="c-war" class="count-num">0</span>WARD</div>
+            <div class="card" onclick="hit('NO')"><span id="c-no" style="color:var(--green); font-size:1.5rem; display:block;">0</span>SAID NO</div>
+            <div class="card" onclick="hit('SILENCE')"><span id="c-sil" style="color:var(--green); font-size:1.5rem; display:block;">0</span>SILENCE</div>
+            <div class="card" onclick="hit('SORRY')"><span id="c-sor" style="color:var(--green); font-size:1.5rem; display:block;">0</span>NO SORRY</div>
+            <div class="card" onclick="hit('WARD')"><span id="c-war" style="color:var(--green); font-size:1.5rem; display:block;">0</span>WARD</div>
         </div>
         <div id="log"></div>
-        <button onclick="clearAll()" style="color:#300; border:none; background:none; cursor:pointer; font-size:0.6rem; margin-top:20px;">[ RESET ALL ]</button>
     </div>
 
     <div id="v-prj" class="view">
-        <div style="display: flex; gap: 5px;">
-            <input type="text" id="p-task" placeholder="Task...">
-            <input type="text" id="p-cat" placeholder="Category" style="width: 100px;">
-            <button onclick="addP()" style="background: var(--gold); border:none; padding: 10px; cursor:pointer; font-weight:bold; height: 42px;">ADD</button>
-        </div>
-        <div id="p-list" style="margin-top: 15px;"></div>
+        <input type="text" id="p-task" placeholder="New Project (e.g. Baking)">
+        <button onclick="addP()" style="width:100%; padding:10px; background:var(--gold); border:none; font-weight:bold; cursor:pointer;">START CYCLE</button>
+        <div id="p-list" style="margin-top: 20px;"></div>
     </div>
 
     <div id="v-sha" class="view">
-        <div id="lock-screen">
-            <input type="password" id="pass" placeholder="Speak the Word" style="text-align:center;">
-            <button onclick="unlock()" style="width:100%; padding:10px; background:#111; color:#555; border:1px solid #333; cursor:pointer;">ENGAGE</button>
-        </div>
-        <div id="vault-inner" class="hidden">
-            <textarea id="rot" placeholder="Is this rot yours? Bleed it out..."></textarea>
-            <button onclick="burn()" style="width:100%; padding:20px; background:#200; color:var(--accent); border:1px solid var(--accent); cursor:pointer; font-weight:bold;">PURGE TO THE VOID</button>
-        </div>
+        <div id="lock-screen"><input type="password" id="pass" placeholder="Password"><button onclick="unlock()" style="width:100%; padding:10px; background:#111; color:#555;">ENGAGE</button></div>
+        <div id="vault-inner" class="hidden"><textarea id="rot" style="width:100%; height:200px; background:#000; color:red;"></textarea><button onclick="burn()" style="width:100%; padding:20px; background:#200; color:white;">PURGE</button></div>
     </div>
 
 <script>
-    // Persistence setup
     let counts = JSON.parse(localStorage.getItem('v_counts')) || { NO: 0, SILENCE: 0, SORRY: 0, WARD: 0 };
     let projects = JSON.parse(localStorage.getItem('v_projects')) || [];
     let history = JSON.parse(localStorage.getItem('v_history')) || [];
     let startTime = Date.now();
 
-    // Tab Switching
     function go(room) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('v-' + room).classList.add('active');
         document.getElementById('n-' + room).classList.add('active');
-        
-        // Relock Shadow on exit
-        if(room !== 'sha') {
-            document.getElementById('lock-screen').classList.remove('hidden');
-            document.getElementById('vault-inner').classList.add('hidden');
-        }
     }
 
-    // Tally Logic
     function hit(type) {
-        let reason = prompt("Context for " + type + ":", "");
+        let reason = prompt("Context:", "");
         counts[type]++;
-        
         let time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        history.unshift(`<span style="color:var(--gold)">[${time}]</span> ${type}: ${reason || 'Held'}`);
-        if(history.length > 30) history.pop();
-        
-        saveAndRender();
+        history.unshift(`[${time}] ${type}: ${reason || 'Held'}`);
+        save();
     }
 
-    // Project Logic
     function addP() {
         let t = document.getElementById('p-task').value;
-        let c = document.getElementById('p-cat').value || "TRIAGE";
         if(t) {
-            projects.push({task: t, cat: c});
+            projects.push({name: t, subs: []});
             document.getElementById('p-task').value = "";
-            saveAndRender();
+            save();
         }
     }
 
-    // Shadow Logic
-    function unlock() {
-        if(document.getElementById('pass').value === "Kleidouchos") {
-            document.getElementById('lock-screen').classList.add('hidden');
-            document.getElementById('vault-inner').classList.remove('hidden');
-        }
+    function addSub(i) {
+        let sub = prompt("Enter sub-task:");
+        if(sub) { projects[i].subs.push({text: sub, done: false}); save(); }
     }
 
-    function burn() {
-        document.getElementById('rot').value = "";
-        alert("Consumed.");
-        go('sov');
+    function toggleSub(pi, si) {
+        projects[pi].subs[si].done = !projects[pi].subs[si].done;
+        save();
     }
 
-    // Global Save & Render
-    function saveAndRender() {
+    function save() {
         localStorage.setItem('v_counts', JSON.stringify(counts));
         localStorage.setItem('v_projects', JSON.stringify(projects));
         localStorage.setItem('v_history', JSON.stringify(history));
-        
-        // Update UI
+        render();
+    }
+
+    function render() {
         document.getElementById('c-no').innerText = counts.NO;
         document.getElementById('c-sil').innerText = counts.SILENCE;
         document.getElementById('c-sor').innerText = counts.SORRY;
         document.getElementById('c-war').innerText = counts.WARD;
-        
-        let total = counts.NO + counts.SILENCE + counts.SORRY + counts.WARD;
-        document.getElementById('bar-fill').style.width = Math.min((total / 15) * 100, 100) + "%";
-        
+        document.getElementById('bar-fill').style.width = Math.min(((counts.NO + counts.SILENCE + counts.SORRY + counts.WARD) / 10) * 100, 100) + "%";
         document.getElementById('log').innerHTML = history.map(h => `<div>${h}</div>`).join('');
-        
-        document.getElementById('p-list').innerHTML = projects.map((p, i) => `
+        document.getElementById('p-list').innerHTML = projects.map((p, pi) => `
             <div class="item-row">
-                <div><small style="color:var(--gold)">${p.cat.toUpperCase()}</small><br>${p.task}</div>
-                <button onclick="projects.splice(${i},1); saveAndRender();" style="background:none; border:none; color:#400; cursor:pointer; font-weight:bold;">[X]</button>
+                <div><strong>${p.name}</strong><br>
+                ${p.subs.map((s, si) => `<div class="subtask ${s.done ? 'done' : ''}" onclick="toggleSub(${pi},${si})">- ${s.text}</div>`).join('')}
+                <button onclick="addSub(${pi})" style="margin-top:10px; font-size:0.6rem; cursor:pointer;">+ ADD SUB</button></div>
+                <button onclick="projects.splice(${pi},1); save();" style="color:red; background:none; border:none; cursor:pointer;">[X]</button>
             </div>
         `).join('');
     }
 
-    function clearAll() {
-        if(confirm("Purge all tallies and logs?")) {
-            counts = { NO: 0, SILENCE: 0, SORRY: 0, WARD: 0 };
-            history = [];
-            saveAndRender();
-        }
-    }
+    function unlock() { if(document.getElementById('pass').value === "Kleidouchos") { document.getElementById('lock-screen').classList.add('hidden'); document.getElementById('vault-inner').classList.remove('hidden'); } }
+    function burn() { document.getElementById('rot').value = ""; alert("Consumed."); go('sov'); }
 
-    // Clock
     setInterval(() => {
         let diff = new Date(Date.now() - startTime);
         document.getElementById('clock').innerText = diff.toISOString().substr(11, 8);
     }, 1000);
-
-    window.onload = saveAndRender;
+    window.onload = render;
 </script>
 </body>
 </html>
