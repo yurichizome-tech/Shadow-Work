@@ -1,80 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign Vault</title>
+    <title>Vault Reset</title>
     <style>
-        :root { --bg: #050505; --panel: #111; --text: #b0b0b0; --accent: #ff3e3e; --gold: #c5a059; --green: #4ade80; --glow: 0 0 15px rgba(74, 222, 128, 0.4); }
-        body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; padding-bottom: 50px; }
-        
-        /* Nav */
-        .nav { display: flex; justify-content: center; gap: 15px; padding: 20px; border-bottom: 1px solid #1a1a1a; position: sticky; top: 0; background: var(--bg); z-index: 100; }
-        .nav-btn { background: none; border: none; color: #444; cursor: pointer; font-size: 0.7rem; letter-spacing: 2px; padding: 10px; transition: 0.3s; }
-        .nav-btn.active { color: var(--gold); border-bottom: 2px solid var(--gold); text-shadow: 0 0 10px var(--gold); }
-
-        /* Momentum Bar */
-        .momentum-container { width: 90%; max-width: 800px; margin: 15px auto; background: #111; height: 12px; border-radius: 20px; overflow: hidden; border: 1px solid #222; position: relative; }
-        #momentum-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--gold), var(--green)); transition: width 0.5s ease-in-out; box-shadow: var(--glow); }
-
-        .container { width: 95%; max-width: 800px; margin: auto; padding-top: 10px; }
-        .view { display: none; }
-        .view.active { display: block; }
-        
-        /* Tally Grid */
-        .tally-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-        .tally-card { background: var(--panel); border: 1px solid #222; padding: 20px; text-align: center; cursor: pointer; border-radius: 8px; transition: 0.2s; -webkit-tap-highlight-color: transparent; }
-        .tally-card:active { transform: scale(0.92); border-color: var(--green); background: #1a1a1a; }
-        .count { display: block; font-size: 2rem; color: var(--green); text-shadow: var(--glow); font-weight: bold; margin-bottom: 5px; }
-        
-        /* Project Styling */
-        .input-group { display: flex; gap: 8px; margin-bottom: 20px; }
-        input { background: #000; border: 1px solid #333; color: white; padding: 12px; font-family: inherit; border-radius: 4px; }
-        .add-btn { background: var(--gold); border: none; color: black; padding: 10px 20px; cursor: pointer; font-weight: bold; border-radius: 4px; }
-        .proj-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #111; background: #080808; margin-bottom: 8px; border-radius: 6px; border-left: 3px solid var(--gold); }
-        .status-btn { background: #111; border: 1px solid #333; color: #666; padding: 10px 15px; cursor: pointer; font-size: 0.7rem; border-radius: 4px; }
-        .status-btn.done { color: var(--green); border-color: var(--green); box-shadow: var(--glow); font-weight: bold; }
-
-        /* Log */
-        #event-log { height: 200px; overflow-y: auto; font-size: 0.8rem; border-top: 1px solid #1a1a1a; padding-top: 20px; margin-top: 30px; color: #777; line-height: 1.6; }
-        .log-entry { margin-bottom: 8px; border-bottom: 1px solid #0a0a0a; padding-bottom: 4px; }
-
-        /* Vault */
-        #vault-lock { text-align: center; margin-top: 60px; padding: 40px; border: 1px solid #1a1a1a; border-radius: 10px; }
-        textarea { width: 100%; height: 400px; background: #050000; color: var(--accent); border: 1px solid #400; padding: 20px; font-family: inherit; box-sizing: border-box; resize: none; font-size: 1.1rem; line-height: 1.5; border-radius: 8px; }
-        
-        .hidden { display: none !important; }
+        body { background: #000; color: #ccc; font-family: monospace; padding: 20px; }
+        .btn { background: #111; border: 1px solid #333; color: #gold; padding: 20px; margin: 5px; cursor: pointer; display: inline-block; width: 45%; text-align: center; }
+        #bar-bg { background: #111; height: 10px; width: 100%; border: 1px solid #222; margin: 20px 0; }
+        #bar-fill { background: gold; height: 100%; width: 0%; transition: 0.3s; }
+        #log { border-top: 1px solid #222; margin-top: 20px; padding-top: 10px; font-size: 12px; height: 200px; overflow-y: scroll; }
     </style>
 </head>
 <body>
 
-<div class="nav">
-    <button id="btn-sov" class="nav-btn active" onclick="go('sovereign')">SOVEREIGNTY</button>
-    <button id="btn-proj" class="nav-btn" onclick="go('projects')">PROJECTS</button>
-    <button id="btn-sha" class="nav-btn" onclick="go('shadow')">SHADOW</button>
-</div>
-
-<div class="momentum-container">
-    <div id="momentum-fill"></div>
-</div>
-
-<div class="container">
-    <div id="sovereign" class="view active">
-        <div id="clock" style="font-size: 1.8rem; text-align: center; color: var(--gold); margin-bottom: 25px; letter-spacing: 5px; font-weight: bold;">00:00:00</div>
-        
-        <div class="tally-grid">
-            <div class="tally-card" onclick="logEvent('no', 'SAID NO')"><span id="v-no" class="count">0</span>NO</div>
-            <div class="tally-card" onclick="logEvent('silence', 'SILENCE')"><span id="v-silence" class="count">0</span>SILENCE</div>
-            <div class="tally-card" onclick="logEvent('sorry', 'NO SORRY')"><span id="v-sorry" class="count">0</span>SORRY</div>
-            <div class="tally-card" onclick="logEvent('ward', 'WARD HELD')"><span id="v-ward" class="count">0</span>WARD</div>
-        </div>
-
-        <div id="event-log"></div>
-        <button style="color:#300; border:none; background:none; cursor:pointer; font-size:0.7rem; margin-top:25px; letter-spacing: 1px;" onclick="clearLog()">[ RESET DAILY FREQUENCY ]</button>
+    <div style="text-align:center;">
+        <h2 id="clock">00:00:00</h2>
+        <div id="bar-bg"><div id="bar-fill"></div></div>
     </div>
 
-    <div id="projects" class="view">
-        <div class="input-group">
-            <input type="text" id="newProjTask" placeholder="Add Task...">
-            <input type="text" id="newProjCat" placeholder="Area..." style="width: 100px;">
-            <button class="add-btn" onclick="addProject()">
+    <div class="btn" onclick="hit('NO')">NO: <span id="c-no">0</span></div>
+    <div class="btn" onclick="hit('SILENCE')">SILENCE: <span id="c-sil">0</span></div>
+    <div class="btn" onclick="hit('SORRY')">NO SORRY: <span id="c-sor">0</span></div>
+    <div class="btn" onclick="hit('WARD')">WARD: <span id="c-war">0</span></div>
+
+    <div id="log"></div>
+
+<script>
+    // Simplified State
+    let count = { NO: 0, SILENCE: 0, SORRY: 0, WARD: 0 };
+    let start = Date.now();
+
+    function hit(type) {
+        // 1. Ask for reason
+        let reason = prompt("Why " + type + "?", "");
+        
+        // 2. Update numbers
+        count[type]++;
+        document.getElementById('c-no').innerText = count['NO'];
+        document.getElementById('c-sil').innerText = count['SILENCE'];
+        document.getElementById('c-sor').innerText = count['SORRY'];
+        document.getElementById('c-war').innerText = count['WARD'];
+
+        // 3. Update Log
+        let time = new Date().toLocaleTimeString();
+        let entry = document.createElement('div');
+        entry.innerText = "[" + time + "] " + type + (reason ? ": " + reason : "");
+        document.getElementById('log').prepend(entry);
+
+        // 4. Update Bar
+        let total = count.NO + count.SILENCE + count.SORRY + count.WARD;
+        document.getElementById('bar-fill').style.width = Math.min((total / 10) * 100, 100) + "%";
+    }
+
+    // Clock
+    setInterval(() => {
+        let diff = new Date(Date.now() - start);
+        document.getElementById('clock').innerText = diff.toISOString().substr(11, 8);
+    }, 1000);
+</script>
+</body>
+</html>
