@@ -5,48 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Sovereign Grimoire</title>
     <style>
-        :root { --bg: #050505; --gold: #d4af37; --text: #d0d0d0; --progress-bg: #1a1a1a; }
-        body { background: var(--bg); color: var(--text); font-family: 'Garamond', serif; margin: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
+        :root { --bg: #050505; --gold: #d4af37; --text: #d0d0d0; --crow: #222; }
+        body { background: var(--bg); color: var(--text); font-family: 'Garamond', serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
         
         /* PROGRESS BAR */
-        .progress-container { width: 100%; height: 5px; background: var(--progress-bg); position: fixed; top: 0; z-index: 1000; }
-        #progress-bar { height: 100%; width: 0%; background: var(--gold); box-shadow: 0 0 10px var(--gold); transition: width 0.5s ease; }
+        .progress-container { width: 100%; height: 6px; background: #111; position: fixed; top: 0; z-index: 3000; }
+        #progress-bar { height: 100%; width: 0%; background: var(--gold); box-shadow: 0 0 15px var(--gold); transition: 0.5s; }
 
-        /* TAB NAVIGATION */
-        .tab-bar { display: flex; justify-content: space-around; width: 100%; background: #111; padding: 15px 0; border-bottom: 1px solid #222; margin-top: 5px; }
-        .tab-btn { background: none; border: none; color: #555; font-weight: bold; cursor: pointer; letter-spacing: 2px; transition: 0.3s; }
-        .tab-btn.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
+        /* TABS */
+        .tab-bar { display: flex; justify-content: space-around; width: 100%; background: #0a0a0a; padding: 20px 0; border-bottom: 1px solid #111; margin-top: 6px; }
+        .tab-btn { background: none; border: none; color: #444; font-weight: bold; cursor: pointer; letter-spacing: 2px; }
+        .tab-btn.active { color: var(--gold); text-shadow: 0 0 5px var(--gold); }
 
-        .container { width: 92%; max-width: 600px; padding: 20px; display: none; }
+        .container { width: 92%; max-width: 600px; display: none; padding-top: 20px; }
         .container.active { display: block; }
 
         /* TALLIES */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
-        .tally-card { background: #111; border: 1px solid #333; padding: 20px; border-radius: 10px; text-align: center; cursor: pointer; }
-        .tally-count { font-size: 2rem; color: var(--gold); display: block; font-weight: bold; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        .tally-card { background: #0d0d0d; border: 1px solid #222; padding: 20px; border-radius: 5px; text-align: center; cursor: pointer; }
+        .tally-count { font-size: 2rem; color: var(--gold); display: block; margin-bottom: 5px; }
 
-        /* TRIAGE TASKS */
-        .task-group { margin: 25px 0; border: 1px solid #222; padding: 15px; border-radius: 8px; position: relative; }
-        .task-header { color: var(--gold); font-size: 1.1rem; margin-bottom: 10px; letter-spacing: 2px; text-transform: uppercase; }
-        .subtask { padding: 12px; margin: 8px 0; border: 1px solid #333; background: #0a0a0a; transition: all 0.6s; cursor: pointer; color: #666; display: flex; justify-content: space-between; }
-        .subtask::before { content: '⋮'; color: #333; margin-right: 10px; } /* Reorder Handle Visual */
+        /* TASK GROUPS */
+        .task-group { border: 1px solid #1a1a1a; padding: 20px; margin-bottom: 20px; transition: 0.5s; }
+        .task-group.all-done { border-color: var(--gold); box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.2); }
+        .task-header { color: #555; font-size: 1rem; letter-spacing: 3px; margin-bottom: 15px; transition: 0.5s; }
+        .task-group.all-done .task-header { color: var(--gold); text-shadow: 0 0 10px var(--gold); }
         
-        .subtask.completed { 
-            color: var(--gold); border: 2px solid var(--gold); 
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
-            background: linear-gradient(45deg, #1a1a1a, #000);
-            text-shadow: 0 0 8px #d4af37;
-            animation: alchemicalScorch 0.5s ease-out;
-        }
+        .subtask { padding: 15px; margin: 10px 0; border: 1px solid #222; background: #050505; color: #666; cursor: pointer; display: flex; justify-content: space-between; transition: 0.4s; }
+        .subtask.completed { color: var(--gold); border-color: var(--gold); text-shadow: 0 0 5px var(--gold); background: #0a0800; }
 
-        /* VAULT */
-        .vault-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; flex-direction: column; align-items: center; justify-content: center; }
-        #shadow-text { width: 85%; height: 250px; background: #0a0a0a; color: #888; border: 1px solid #222; padding: 20px; outline: none; }
-        .crow-particle { position: absolute; width: 12px; height: 8px; background: #000; clip-path: polygon(0% 20%, 50% 50%, 100% 20%, 50% 100%); z-index: 2001; pointer-events: none; }
-        @keyframes flyAway { to { transform: translate(var(--twx), var(--twy)) rotate(var(--tr)) scale(0); opacity: 0; } }
+        /* THE WARD (LOCK) */
+        .ward-area { text-align: center; padding-top: 50px; }
+        #ward-btn { width: 100px; height: 100px; border-radius: 50%; border: 2px solid #222; background: none; color: #333; cursor: pointer; transition: 0.3s; }
+        #ward-btn:active { border-color: var(--gold); color: var(--gold); box-shadow: 0 0 20px var(--gold); }
 
-        .btn-gold { background: none; border: 1px solid var(--gold); color: var(--gold); padding: 15px 30px; cursor: pointer; margin-top: 20px; letter-spacing: 3px; }
-        @keyframes alchemicalScorch { 0% { filter: brightness(4); } 100% { filter: brightness(1); } }
+        /* VAULT OVERLAY */
+        .vault-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 4000; flex-direction: column; align-items: center; justify-content: center; }
+        #shadow-text { width: 80%; height: 300px; background: #050505; color: #888; border: 1px solid #111; padding: 20px; font-size: 1.2rem; outline: none; }
+        .crow-particle { position: absolute; width: 14px; height: 10px; background: #333; clip-path: polygon(0% 20%, 50% 50%, 100% 20%, 50% 100%); z-index: 4001; pointer-events: none; opacity: 0.8; box-shadow: 0 0 2px #000; }
+        @keyframes flyOff { to { transform: translate(var(--twx), var(--twy)) rotate(var(--tr)) scale(0); opacity: 0; } }
     </style>
 </head>
 <body>
@@ -54,101 +51,107 @@
     <div class="progress-container"><div id="progress-bar"></div></div>
 
     <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('daily')">TRIAGE</button>
-        <button class="tab-btn" onclick="switchTab('projects')">PROJECTS</button>
-        <button class="tab-btn" onclick="openVault()">VAULT</button>
+        <button class="tab-btn active" onclick="setTab('daily')">TRIAGE</button>
+        <button class="tab-btn" onclick="setTab('projects')">PROJECTS</button>
+        <button class="tab-btn" onclick="setTab('vault-gate')">VAULT</button>
     </div>
 
     <div id="daily" class="container active">
         <div class="grid">
-            <div class="tally-card" onclick="addTally('saidNo')"><span id="count-saidNo" class="tally-count">0</span>Said No</div>
-            <div class="tally-card" onclick="addTally('heldSilence')"><span id="count-heldSilence" class="tally-count">0</span>Silence Held</div>
+            <div class="tally-card" onclick="addTally('saidNo')"><span id="c-saidNo" class="tally-count">0</span>Said No</div>
+            <div class="tally-card" onclick="addTally('heldSilence')"><span id="c-heldSilence" class="tally-count">0</span>Silence Held</div>
         </div>
-
-        <div class="task-group" id="laundry-group">
-            <div class="task-header">Laundry</div>
-            <div class="subtask" onclick="toggleTask(this)">Wash & Rinse</div>
-            <div class="subtask" onclick="toggleTask(this)">The Hanging</div>
-            <div class="subtask" onclick="toggleTask(this)">Fold & Center</div>
-        </div>
-
-        <div class="task-group" id="cupcake-group">
-            <div class="task-header">Cupcakes</div>
-            <div class="subtask" onclick="toggleTask(this)">The Mixing</div>
-            <div class="subtask" onclick="toggleTask(this)">Fire & Bake</div>
-            <div class="subtask" onclick="toggleTask(this)">Decoration</div>
+        <div class="task-group" id="group-laundry">
+            <div class="task-header">LAUNDRY</div>
+            <div class="subtask" onclick="toggleT(this, 'group-laundry')">Wash & Rinse</div>
+            <div class="subtask" onclick="toggleT(this, 'group-laundry')">The Hanging</div>
+            <div class="subtask" onclick="toggleT(this, 'group-laundry')">Fold & Center</div>
         </div>
     </div>
 
     <div id="projects" class="container">
-        <div class="task-group">
-            <div class="task-header">Garden Sanctuary</div>
-            <div class="subtask" onclick="toggleTask(this)">Seedling Care</div>
-            <div class="subtask" onclick="toggleTask(this)">Source Hekate Key</div>
+        <div class="task-group" id="group-garden">
+            <div class="task-header">GARDEN SANCTUARY</div>
+            <div class="subtask" onclick="toggleT(this, 'group-garden')">Seedling Care</div>
+            <div class="subtask" onclick="toggleT(this, 'group-garden')">Source Hekate Key</div>
         </div>
     </div>
 
-    <div id="vault" class="vault-overlay">
-        <h2 style="color: #222; letter-spacing: 8px;">KLIDOUS</h2>
-        <textarea id="shadow-text" placeholder="Release to the crows..."></textarea>
-        <button class="btn-gold" onclick="feedCrows()">RELEASE</button>
-        <button style="background:none; border:none; color:#333; margin-top:50px; cursor:pointer;" onclick="closeVault()">[ SEAL ]</button>
+    <div id="vault-gate" class="container ward-area">
+        <p style="color: #222; letter-spacing: 5px;">HOLD TO UNLOCK</p>
+        <button id="ward-btn" onmousedown="startLock()" onmouseup="stopLock()" ontouchstart="startLock()" ontouchend="stopLock()">KLIDOUS</button>
+    </div>
+
+    <div id="vault-overlay" class="vault-overlay">
+        <h2 style="color: #111; letter-spacing: 10px;">THE VOID</h2>
+        <textarea id="shadow-text" placeholder="Release the weight..."></textarea>
+        <button onclick="feedCrows()" style="background:none; border:1px solid #333; color:#333; padding:15px 40px; margin-top:20px; cursor:pointer;">RELEASE</button>
+        <button onclick="closeVault()" style="background:none; border:none; color:#111; margin-top:40px; cursor:pointer;">[ SEAL & EXIT ]</button>
     </div>
 
     <script>
-        let state = JSON.parse(localStorage.getItem('sovereign_v6')) || { tallies: { saidNo: 0, heldSilence: 0 } };
+        let state = JSON.parse(localStorage.getItem('sov_v65')) || { tallies: { saidNo: 0, heldSilence: 0 }, totalWins: 0 };
+        let lockTimer;
 
-        function switchTab(tabId) {
+        function setTab(id) {
             document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
+            document.getElementById(id).classList.add('active');
             event.currentTarget.classList.add('active');
         }
 
-        function toggleTask(el) { 
-            el.classList.toggle('completed'); 
-            updateProgress();
+        function toggleT(el, groupId) {
+            el.classList.toggle('completed');
+            const group = document.getElementById(groupId);
+            const subs = group.querySelectorAll('.subtask');
+            const done = group.querySelectorAll('.subtask.completed');
+            if(subs.length === done.length) group.classList.add('all-done');
+            else group.classList.remove('all-done');
+            updateProg();
         }
 
-        function updateProgress() {
-            const total = document.querySelectorAll('.subtask').length;
-            const done = document.querySelectorAll('.subtask.completed').length;
-            const percent = (done / total) * 100;
-            document.getElementById('progress-bar').style.width = percent + '%';
+        function addTally(key) {
+            state.tallies[key]++;
+            state.totalWins++;
+            document.getElementById(`c-${key}`).innerText = state.tallies[key];
+            localStorage.setItem('sov_v65', JSON.stringify(state));
+            updateProg();
         }
 
-        function addTally(key) { 
-            state.tallies[key]++; 
-            document.getElementById(`count-${key}`).innerText = state.tallies[key]; 
-            localStorage.setItem('sovereign_v6', JSON.stringify(state)); 
+        function updateProg() {
+            const tasks = document.querySelectorAll('.subtask').length;
+            const completed = document.querySelectorAll('.subtask.completed').length;
+            const progress = ((completed + state.totalWins) / (tasks + 20)) * 100; // Weighted bar
+            document.getElementById('progress-bar').style.width = Math.min(progress, 100) + '%';
         }
 
-        function openVault() { document.getElementById('vault').style.display = 'flex'; }
-        function closeVault() { document.getElementById('vault').style.display = 'none'; }
+        function startLock() { lockTimer = setTimeout(() => { document.getElementById('vault-overlay').style.display = 'flex'; }, 1500); }
+        function stopLock() { clearTimeout(lockTimer); }
+        function closeVault() { document.getElementById('vault-overlay').style.display = 'none'; setTab('daily'); }
 
         function feedCrows() {
             const area = document.getElementById('shadow-text');
-            if (!area.value) return;
-            for (let i = 0; i < 40; i++) {
-                const crow = document.createElement('div');
-                crow.className = 'crow-particle';
-                const rect = area.getBoundingClientRect();
-                crow.style.left = (rect.left + Math.random() * rect.width) + 'px';
-                crow.style.top = (rect.top + Math.random() * rect.height) + 'px';
-                crow.style.setProperty('--twx', (Math.random() * 800 - 400) + 'px');
-                crow.style.setProperty('--twy', (Math.random() * -800 - 200) + 'px');
-                crow.style.setProperty('--tr', (Math.random() * 720) + 'deg');
-                crow.style.animation = "flyAway 1.8s forwards ease-in";
-                document.body.appendChild(crow);
-                setTimeout(() => crow.remove(), 1800);
+            if(!area.value) return;
+            for(let i=0; i<50; i++) {
+                const c = document.createElement('div');
+                c.className = 'crow-particle';
+                const r = area.getBoundingClientRect();
+                c.style.left = (r.left + Math.random() * r.width) + 'px';
+                c.style.top = (r.top + Math.random() * r.height) + 'px';
+                c.style.setProperty('--twx', (Math.random() * 1000 - 500) + 'px');
+                c.style.setProperty('--twy', (Math.random() * -1000 - 200) + 'px');
+                c.style.setProperty('--tr', (Math.random() * 720) + 'deg');
+                c.style.animation = "flyOff 2s forwards ease-in";
+                document.body.appendChild(c);
+                setTimeout(() => c.remove(), 2000);
             }
             area.style.opacity = "0";
-            setTimeout(() => { area.value = ""; area.style.opacity = "1"; closeVault(); }, 1500);
+            setTimeout(() => { area.value = ""; area.style.opacity = "1"; closeVault(); }, 1800);
         }
 
-        document.getElementById('count-saidNo').innerText = state.tallies.saidNo;
-        document.getElementById('count-heldSilence').innerText = state.tallies.heldSilence;
-        updateProgress();
+        document.getElementById('c-saidNo').innerText = state.tallies.saidNo;
+        document.getElementById('c-heldSilence').innerText = state.tallies.heldSilence;
+        updateProg();
     </script>
 </body>
 </html>
