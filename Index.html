@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Sovereign Grimoire</title>
+    <style>
+        /* --- THE VIBE (CSS) --- */
+        :root {
+            --bg: #0a0a0a;
+            --card: #1a1a1a;
+            --text: #e0e0e0;
+            --glow: #4ade80;
+            --shadow: #7c3aed;
+            --accent: #ff0055;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Garamond', serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Home Screen */
+        .container { width: 90%; max-width: 500px; padding: 20px; text-align: center; }
+
+        .sober-clock {
+            margin: 40px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            border: 1px solid var(--glow);
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.1);
+        }
+
+        #timer-display { font-size: 2.2rem; font-weight: bold; color: var(--glow); }
+
+        .urge-btn {
+            width: 150px; height: 150px;
+            border-radius: 50%;
+            border: 2px solid var(--text);
+            background: transparent;
+            color: var(--text);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+            margin: 20px 0;
+        }
+
+        .urge-btn:active { transform: scale(0.9); border-color: var(--accent); }
+
+        /* Vault Portal */
+        .vault-gate {
+            margin-top: 50px;
+            padding: 15px 30px;
+            background: var(--card);
+            border: 1px solid #444;
+            color: #888;
+            cursor: pointer;
+            letter-spacing: 2px;
+        }
+
+        /* Overlays */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 100; display: flex; 
+            flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        .hidden { display: none !important; }
+
+        #ticking-echo { 
+            margin-top: 20px; font-style: italic; color: #444; 
+            animation: pulse 1s infinite; 
+        }
+
+        @keyframes pulse { 0% {opacity: 1} 50% {opacity: 0.3} 100% {opacity: 1} }
+
+        /* Vault Content */
+        #vault-inner { padding: 20px; overflow-y: auto; text-align: left; background: #050505; }
+        
+        .symptom-grid { display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0; }
+        .symptom-btn { 
+            background: #222; border: 1px solid #444; color: #bbb; 
+            padding: 8px 12px; border-radius: 4px; cursor: pointer;
+        }
+
+        textarea { 
+            width: 100%; height: 150px; background: #111; color: white; 
+            border: 1px solid #333; padding: 10px; margin-top: 20px;
+        }
+
+        .release-btn {
+            width: 100%; padding: 20px; margin-top: 20px;
+            background: #1a1a1a; border: 1px solid var(--accent);
+            color: var(--accent); font-weight: bold; cursor: pointer;
+        }
+
+        input[type="password"] {
+            background: transparent; border: none; border-bottom: 1px solid #444;
+            color: white; text-align: center; font-size: 1.5rem; outline: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="home-screen">
+        <div class="sober-clock">
+            <div style="font-size: 0.8rem; letter-spacing: 3px;">SOBER FOR</div>
+            <div id="timer-display">0d 0h 0m 0s</div>
+        </div>
+
+        <button class="urge-btn" id="urge-trigger" onmousedown="holdStart()" onmouseup="holdEnd()" ontouchstart="holdStart()" ontouchend="holdEnd()">
+            URGE
+        </button>
+        <p style="font-size: 0.7rem; color: #555;">Tap to log Awareness | Hold to Reset & Enter Vault</p>
+
+        <button class="vault-gate" onclick="showWard()">[ ACCESS VAULT ]</button>
+
+        <div style="margin-top: 50px;">
+            <button onclick="exportData()" style="background:none; border:none; color:#333; cursor:pointer;">Backup</button>
+            <button onclick="document.getElementById('fileIn').click()" style="background:none; border:none; color:#333; cursor:pointer;">Restore</button>
+            <input type="file" id="fileIn" class="hidden" onchange="importData(this.files)">
+        </div>
+    </div>
+
+    <div id="ward-overlay" class="overlay hidden">
+        <h2 style="letter-spacing: 5px; color: #444;">THRESHOLD</h2>
+        <input type="password" id="ward-input" placeholder="Speak the Word">
+        <div id="ticking-echo" class="hidden">ticking... focus... ticking...</div>
+        <button onclick="checkWard()" style="margin-top: 30px; background:none; border:1px solid #333; color:#555; padding:10px 20px;">Unlock</button>
+    </div>
+
+    <div id="vault-inner" class="overlay hidden">
+        <div style="width: 90%; max-width: 500px;">
+            <button onclick="exitVault()" style="color: #555; background:none; border:none; cursor:pointer;">[ Close & Bolt Door ]</button>
+            
+            <h3>Somatic Audit</h3>
+            <p style="font-size: 0.8rem; color: #666;">Is this an attack or physical illness?</p>
+            <div id="symptom-list" class="symptom-grid"></div>
+            
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="new-symptom" placeholder="Add symptom..." style="background:#111; border:1px solid #333; color:white; padding:5px;">
+                <button onclick="addNewSymptom()">+</button>
+            </div>
+
+            <textarea id="vault-text" placeholder="Shadow Work: What is the rot? Describe the haunting..."></textarea>
+            
+            <button class="release-btn" onclick="feedCrows()">FEED THE CROWS</button>
+        </div>
+    </div>
+
+    <script>
+        /* --- THE BRAIN (JS) --- */
+        let soberStart = localStorage.getItem('soberDate') || Date.now();
+        let symptoms = JSON.parse(localStorage.getItem('symptoms')) || ["Nausea", "Shaking", "Dizziness", "Heart Racing"];
+        const WARD = "Klidous";
+
+        // Sounds
+        const sndTick = new Audio('ticking_clock.mp3');
+        const sndOpen = new Audio('heavy_door_open.mp3');
+        const sndClose = new Audio('heavy_door_slam.mp3');
+        const sndCrows = new Audio('crows_unison.mp3');
+
+        // Sober Clock Logic
+        setInterval(() => {
+            let diff = Date.now() - soberStart;
+            let d = Math.floor(diff / 86400000);
+            let h = Math.floor((diff % 86400000) / 3600000);
+            let m = Math.floor((diff % 3600000) / 60000);
+            let s = Math.floor((diff % 60000) / 1000);
+            document.getElementById('timer-display').innerText = `${d}d ${h}h ${m}m ${s}s`;
+        }, 1000);
+
+        // Vault Access
+        function showWard() { document.getElementById('ward-overlay').classList.remove('hidden'); }
+
+        function checkWard() {
+            const val = document.getElementById('ward-input').value;
+            if (val === WARD) {
+                document.getElementById('ticking-echo').classList.remove('hidden');
+                sndTick.play();
+                setTimeout(() => {
+                    sndOpen.play();
+                    document.getElementById('ward-overlay').classList.add('hidden');
+                    document.getElementById('vault-inner').classList.remove('hidden');
+                    renderSymptoms();
+                }, 3000);
+            } else {
+                alert("The way remains closed.");
+            }
+        }
+
+        function exitVault() {
+            sndClose.play();
+            document.getElementById('vault-inner').classList.add('hidden');
+            document.getElementById('ward-input').value = "";
+            document.getElementById('ticking-echo').classList.add('hidden');
+        }
+
+        // Symptoms
+        function renderSymptoms() {
+            const div = document.getElementById('symptom-list');
+            div.innerHTML = symptoms.map(s => `<button class="symptom-btn" onclick="this.style.borderColor='var(--accent)'">${s}</button>`).join('');
+        }
+
+        function addNewSymptom() {
+            const val = document.getElementById('new-symptom').value;
+            if (val && !symptoms.includes(val)) {
+                symptoms.push(val);
+                localStorage.setItem('symptoms', JSON.stringify(symptoms));
+                renderSymptoms();
+                document.getElementById('new-symptom').value = "";
+            }
+        }
+
+        // Urge Logic
+        let hTime;
+        function holdStart() { hTime = setTimeout(() => { if(confirm("Reset clock and enter Vault?")){ soberStart = Date.now(); localStorage.setItem('soberDate', soberStart); showWard(); } }, 1500); }
+        function holdEnd() { clearTimeout(hTime); }
+
+        // Final Release
+        function feedCrows() {
+            sndCrows.play();
+            const seal = prompt("Enter your 3-word locking incantation:");
+            if (seal) {
+                alert("The crows have taken it. It belongs to the night now.");
+                document.getElementById('vault-text').value = "";
+                exitVault();
+            }
+        }
+
+        // Backup
+        function exportData() {
+            const data = { soberStart, symptoms };
+            const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'grimoire_backup.json';
+            a.click();
+        }
+
+        function importData(files) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = JSON.parse(e.target.result);
+                localStorage.setItem('soberDate', data.soberStart);
+                localStorage.setItem('symptoms', JSON.stringify(data.symptoms));
+                location.reload();
+            };
+            reader.readAsText(files[0]);
+        }
+    </script>
+</body>
+</html>
