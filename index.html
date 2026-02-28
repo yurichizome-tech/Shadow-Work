@@ -10,16 +10,26 @@
         .nav { display: flex; justify-content: center; gap: 20px; padding: 20px; border-bottom: 1px solid #1a1a1a; }
         .nav-btn { background: none; border: none; color: #444; cursor: pointer; font-size: 0.8rem; letter-spacing: 2px; }
         .nav-btn.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
-        .container { width: 90%; max-width: 800px; margin: auto; padding-top: 20px; }
+        .container { width: 90%; max-width: 800px; margin: auto; padding-top: 20px; padding-bottom: 50px; }
         .view { display: none; }
         .view.active { display: block; }
-        .tally-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .tally-card { background: var(--panel); border: 1px solid #222; padding: 20px; text-align: center; cursor: pointer; }
-        .count { display: block; font-size: 2.5rem; color: var(--green); }
         
-        /* Shadow Lock Overlay - Only for the Shadow View */
+        /* Tally Grid */
+        .tally-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .tally-card { background: var(--panel); border: 1px solid #222; padding: 20px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .tally-card:active { border-color: var(--green); transform: scale(0.98); }
+        .count { display: block; font-size: 2.5rem; color: var(--green); margin-bottom: 5px; }
+        
+        /* The Log */
+        .log-container { margin-top: 30px; border: 1px solid #1a1a1a; background: #080808; padding: 15px; }
+        .log-title { font-size: 0.7rem; color: #444; letter-spacing: 3px; margin-bottom: 10px; border-bottom: 1px solid #1a1a1a; padding-bottom: 5px; }
+        #event-log { height: 150px; overflow-y: auto; font-size: 0.8rem; line-height: 1.6; }
+        .log-entry { border-left: 2px solid var(--gold); padding-left: 10px; margin-bottom: 5px; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* Shadow Lock */
         #vault-lock { background: #000; padding: 40px; text-align: center; border: 1px solid #222; margin-top: 50px; }
-        textarea { width: 100%; height: 300px; background: #080000; color: var(--accent); border: 1px solid #300; padding: 15px; font-family: inherit; margin-top: 10px; }
+        textarea { width: 100%; height: 300px; background: #080000; color: var(--accent); border: 1px solid #300; padding: 15px; font-family: inherit; box-sizing: border-box; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -33,11 +43,18 @@
 <div class="container">
     <div id="sovereign" class="view active">
         <div id="clock" style="font-size: 2rem; text-align: center; color: var(--gold); margin-bottom: 20px;">00:00:00</div>
+        
         <div class="tally-grid">
-            <div class="tally-card" onclick="add('no')"><span id="v-no" class="count">0</span>SAID NO</div>
-            <div class="tally-card" onclick="add('silence')"><span id="v-silence" class="count">0</span>SILENCE</div>
-            <div class="tally-card" onclick="add('sorry')"><span id="v-sorry" class="count">0</span>NO SORRY</div>
-            <div class="tally-card" onclick="add('ward')"><span id="v-ward" class="count">0</span>WARD</div>
+            <div class="tally-card" onclick="logEvent('no', 'SAID NO')"><span id="v-no" class="count">0</span>SAID NO</div>
+            <div class="tally-card" onclick="logEvent('silence', 'HELD SILENCE')"><span id="v-silence" class="count">0</span>SILENCE</div>
+            <div class="tally-card" onclick="logEvent('sorry', 'REFUSED SORRY')"><span id="v-sorry" class="count">0</span>NO SORRY</div>
+            <div class="tally-card" onclick="logEvent('ward', 'WARD HELD')"><span id="v-ward" class="count">0</span>WARD</div>
+        </div>
+
+        <div class="log-container">
+            <div class="log-title">SOVEREIGN LOG</div>
+            <div id="event-log"></div>
+            <button onclick="clearLog()" style="margin-top:10px; background:none; border:none; color:#333; cursor:pointer; font-size:0.6rem;">[ PURGE LOG ]</button>
         </div>
     </div>
 
@@ -49,7 +66,6 @@
         </div>
         
         <div id="vault-content" class="hidden">
-            <h3 style="color: var(--accent); text-align: center;">THE VOID</h3>
             <textarea id="void-text" placeholder="Bleed here..."></textarea>
             <button onclick="burn()" style="width:100%; padding: 20px; background: #200; border: 1px solid var(--accent); color: var(--accent); font-weight: bold; margin-top: 10px; cursor: pointer;">RELEASE TO THE VOID</button>
         </div>
@@ -58,15 +74,15 @@
 
 <script>
     const PASS = "Kleidouchos";
+    // Loading state and log from localStorage
     let state = JSON.parse(localStorage.getItem('sov_state')) || { no: 0, silence: 0, sorry: 0, ward: 0, start: Date.now() };
+    let history = JSON.parse(localStorage.getItem('sov_history')) || [];
 
     function go(id) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         document.getElementById(id === 'sovereign' ? 'btn-sov' : 'btn-sha').classList.add('active');
-        
-        // Relock the vault every time you leave the tab
         if (id !== 'shadow') {
             document.getElementById('vault-lock').classList.remove('hidden');
             document.getElementById('vault-content').classList.add('hidden');
@@ -78,28 +94,47 @@
         if(document.getElementById('passInput').value === PASS) {
             document.getElementById('vault-lock').classList.add('hidden');
             document.getElementById('vault-content').classList.remove('hidden');
-        } else {
-            alert("The gate remains closed.");
-        }
+        } else { alert("Locked."); }
     }
 
-    function add(key) {
+    function logEvent(key, label) {
+        // Update count
         state[key]++;
         localStorage.setItem('sov_state', JSON.stringify(state));
+        
+        // Update history
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        history.unshift(`[${time}] ${label}`); // Add to start of array
+        if(history.length > 50) history.pop(); // Keep it lean
+        localStorage.setItem('sov_history', JSON.stringify(history));
+        
         refresh();
+    }
+
+    function clearLog() {
+        if(confirm("Purge the day's record?")) {
+            history = [];
+            localStorage.setItem('sov_history', JSON.stringify(history));
+            refresh();
+        }
     }
 
     function burn() {
         document.getElementById('void-text').value = "";
-        alert("The crows have taken it.");
+        alert("Accepted.");
         go('sovereign');
     }
 
     function refresh() {
+        // Update Numbers
         document.getElementById('v-no').innerText = state.no;
         document.getElementById('v-silence').innerText = state.silence;
         document.getElementById('v-sorry').innerText = state.sorry;
         document.getElementById('v-ward').innerText = state.ward;
+        
+        // Update Log Display
+        const logEl = document.getElementById('event-log');
+        logEl.innerHTML = history.map(entry => `<div class="log-entry">${entry}</div>`).join('');
     }
 
     setInterval(() => {
