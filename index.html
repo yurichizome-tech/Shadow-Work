@@ -3,15 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign Vault</title>
+    <title>The Sovereign Vault</title>
     <style>
         :root { --bg: #050505; --panel: #111; --text: #b0b0b0; --accent: #ff3e3e; --gold: #c5a059; --green: #4ade80; }
         body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; padding-bottom: 40px; }
         .container { width: 90%; max-width: 800px; margin: auto; text-align: center; }
-        
-        /* The Vault Atmosphere */
-        .vault-door { margin-top: 20%; padding: 40px; border: 2px solid #222; background: #0a0a0a; transition: 0.5s; }
-        .vault-door:hover { border-color: var(--accent); }
         
         /* Navigation */
         .nav { display: flex; justify-content: center; gap: 20px; padding: 20px; border-bottom: 1px solid #1a1a1a; position: sticky; top: 0; background: var(--bg); z-index: 100; }
@@ -32,7 +28,6 @@
         /* Shadow Input */
         textarea { width: 100%; height: 300px; background: #000; color: #800; border: 1px solid #200; padding: 20px; font-family: inherit; font-size: 1.1rem; resize: none; outline: none; box-sizing: border-box; }
         .purge-btn { width: 100%; padding: 20px; background: #200; color: var(--accent); border: 1px solid var(--accent); cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .purge-btn:hover { background: var(--accent); color: white; }
 
         /* Clock */
         .clock-wrap { margin: 20px 0; border: 1px solid #1a1a1a; padding: 20px; background: #080808; }
@@ -45,8 +40,8 @@
 <body>
 
 <div id="lock-screen" class="overlay">
-    <h2 style="letter-spacing: 15px; color: #222;">KLIDOUS</h2>
-    <input type="password" id="pass" placeholder="Speak the Word" style="background:none; border:none; border-bottom: 1px solid #333; color: white; text-align: center; font-size: 1.5rem; outline: none;">
+    <h2 style="letter-spacing: 15px; color: #222;">KLEIDOUCHOS</h2>
+    <input type="password" id="pass" placeholder="Speak the Word" style="background:none; border:none; border-bottom: 1px solid #333; color: white; text-align: center; font-size: 1.5rem; outline: none; width: 80%;">
     <button onclick="unlock()" style="margin-top: 20px; background: none; border: 1px solid #333; color: #555; padding: 10px 20px; cursor: pointer;">Engage</button>
 </div>
 
@@ -68,26 +63,20 @@
             <div class="tally-card" onclick="up('sorry')"><span id="c-sorry" class="count">0</span>REFUSED SORRY</div>
             <div class="tally-card" onclick="up('ward')"><span id="c-ward" class="count">0</span>WARD HELD</div>
         </div>
-        
-        <div id="daily-rituals" style="text-align: left; margin-top: 30px;">
-            </div>
     </div>
 
     <div id="shadow" class="view">
         <h3 style="color: var(--accent); letter-spacing: 5px;">THE VOID</h3>
-        <p style="font-size: 0.7rem; color: #444;">WORDS WRITTEN HERE ARE FOR THE CROWS. THEY WILL NOT BE SAVED.</p>
-        <textarea id="void-input" placeholder="Bleed here..."></textarea>
+        <textarea id="void-input" placeholder="Feed the crows..."></textarea>
         <button class="purge-btn" onclick="purge()">RELEASE TO THE VOID</button>
     </div>
 </div>
 
 <script>
-    const KEY = "Klidous";
+    const KEY = "Kleidouchos";
     let data = JSON.parse(localStorage.getItem('sov_vault_v1')) || {
         start: Date.now(),
-        tallies: { no: 0, silence: 0, sorry: 0, ward: 0 },
-        rituals: ["Meds", "Laundry", "Seedlings", "Hydration"],
-        doneRituals: []
+        tallies: { no: 0, silence: 0, sorry: 0, ward: 0 }
     };
 
     function save() { localStorage.setItem('sov_vault_v1', JSON.stringify(data)); }
@@ -101,4 +90,37 @@
     }
 
     function showView(id) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    function up(key) {
+        data.tallies[key]++;
+        document.getElementById(`c-${key}`).innerText = data.tallies[key];
+        save();
+    }
+
+    function purge() {
+        document.getElementById('void-input').value = "";
+        alert("The offering is accepted. The mind is clear.");
+        showView('sovereign');
+    }
+
+    function updateClock() {
+        let diff = Date.now() - data.start;
+        let d = Math.floor(diff / 86400000);
+        let h = Math.floor((diff % 86400000) / 3600000);
+        let m = Math.floor((diff % 3600000) / 60000);
+        let s = Math.floor((diff % 60000) / 1000);
+        document.getElementById('clock').innerText = `${d}d ${h}h ${m}m ${s}s`;
+    }
+
+    setInterval(updateClock, 1000);
+    Object.keys(data.tallies).forEach(k => {
+        document.getElementById(`c-${k}`).innerText = data.tallies[k];
+    });
+</script>
+</body>
+</html>
