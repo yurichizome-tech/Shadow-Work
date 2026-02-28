@@ -1,79 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Sovereign Vault</title>
-    <style>
-        :root { --bg: #050505; --panel: #111; --text: #b0b0b0; --accent: #ff3e3e; --gold: #c5a059; --green: #4ade80; }
-        body { background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; margin: 0; padding-bottom: 40px; }
-        .container { width: 90%; max-width: 800px; margin: auto; text-align: center; }
-        
-        /* Navigation */
-        .nav { display: flex; justify-content: center; gap: 20px; padding: 20px; border-bottom: 1px solid #1a1a1a; position: sticky; top: 0; background: var(--bg); z-index: 100; }
-        .nav-btn { background: none; border: none; color: #444; cursor: pointer; font-size: 0.8rem; letter-spacing: 2px; }
-        .nav-btn.active { color: var(--gold); border-bottom: 1px solid var(--gold); }
-
-        /* Sections */
-        .view { display: none; padding: 20px; animation: blurIn 0.4s ease; }
-        .view.active { display: block; }
-        @keyframes blurIn { from { filter: blur(10px); opacity: 0; } to { filter: blur(0); opacity: 1; } }
-
-        /* Tally System */
-        .tally-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px 0; }
-        .tally-card { background: var(--panel); border: 1px solid #222; padding: 20px; border-radius: 4px; cursor: pointer; }
-        .tally-card:active { border-color: var(--green); }
-        .count { display: block; font-size: 2rem; color: var(--green); margin-bottom: 5px; }
-
-        /* Shadow Input */
-        textarea { width: 100%; height: 300px; background: #000; color: #800; border: 1px solid #200; padding: 20px; font-family: inherit; font-size: 1.1rem; resize: none; outline: none; box-sizing: border-box; }
-        .purge-btn { width: 100%; padding: 20px; background: #200; color: var(--accent); border: 1px solid var(--accent); cursor: pointer; font-weight: bold; margin-top: 10px; }
-
-        /* Clock */
-        .clock-wrap { margin: 20px 0; border: 1px solid #1a1a1a; padding: 20px; background: #080808; }
-        #clock { font-size: 2.5rem; color: var(--gold); }
-
-        .hidden { display: none; }
-        .overlay { position: fixed; inset: 0; background: black; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    </style>
-</head>
-<body>
-
-<div id="lock-screen" class="overlay">
-    <h2 style="letter-spacing: 15px; color: #222;">KLEIDOUCHOS</h2>
-    <input type="password" id="pass" placeholder="Speak the Word" style="background:none; border:none; border-bottom: 1px solid #333; color: white; text-align: center; font-size: 1.5rem; outline: none; width: 80%;">
-    <button onclick="unlock()" style="margin-top: 20px; background: none; border: 1px solid #333; color: #555; padding: 10px 20px; cursor: pointer;">Engage</button>
-</div>
-
-<div class="nav">
-    <button class="nav-btn active" onclick="showView('sovereign')">SOVEREIGNTY</button>
-    <button class="nav-btn" onclick="showView('shadow')">SHADOW WORK</button>
-</div>
-
-<div class="container">
-    <div id="sovereign" class="view active">
-        <div class="clock-wrap">
-            <div style="font-size: 0.6rem; letter-spacing: 5px; color: #555;">THRESHOLD STATUS</div>
-            <div id="clock">00:00:00:00</div>
-        </div>
-
-        <div class="tally-grid">
-            <div class="tally-card" onclick="up('no')"><span id="c-no" class="count">0</span>SAID NO</div>
-            <div class="tally-card" onclick="up('silence')"><span id="c-silence" class="count">0</span>HELD SILENCE</div>
-            <div class="tally-card" onclick="up('sorry')"><span id="c-sorry" class="count">0</span>REFUSED SORRY</div>
-            <div class="tally-card" onclick="up('ward')"><span id="c-ward" class="count">0</span>WARD HELD</div>
-        </div>
-    </div>
-
-    <div id="shadow" class="view">
-        <h3 style="color: var(--accent); letter-spacing: 5px;">THE VOID</h3>
-        <textarea id="void-input" placeholder="Feed the crows..."></textarea>
-        <button class="purge-btn" onclick="purge()">RELEASE TO THE VOID</button>
-    </div>
-</div>
-
 <script>
-    const KEY = "Kleidouchos";
+    // Ensure the key matches exactly what you type
+    const KEY = "Kleidouchos"; 
+    
     let data = JSON.parse(localStorage.getItem('sov_vault_v1')) || {
         start: Date.now(),
         tallies: { no: 0, silence: 0, sorry: 0, ward: 0 }
@@ -82,18 +10,26 @@
     function save() { localStorage.setItem('sov_vault_v1', JSON.stringify(data)); }
 
     function unlock() {
-        if(document.getElementById('pass').value === KEY) {
-            document.getElementById('lock-screen').classList.add('hidden');
+        const input = document.getElementById('pass').value.trim(); // .trim() removes accidental spaces
+        if(input === KEY) {
+            document.getElementById('lock-screen').style.display = 'none'; // Forced hide
+            console.log("Gate Unlocked");
         } else {
-            alert("The gate remains closed.");
+            alert("The gate remains closed. Check your spelling.");
         }
     }
+
+    // Force unlock with Enter key
+    document.getElementById('pass').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') { unlock(); }
+    });
 
     function showView(id) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        event.target.classList.add('active');
+        // This ensures the button you click stays highlighted
+        event.currentTarget.classList.add('active'); 
     }
 
     function up(key) {
@@ -104,7 +40,7 @@
 
     function purge() {
         document.getElementById('void-input').value = "";
-        alert("The offering is accepted. The mind is clear.");
+        alert("The offering is accepted.");
         showView('sovereign');
     }
 
@@ -118,9 +54,12 @@
     }
 
     setInterval(updateClock, 1000);
-    Object.keys(data.tallies).forEach(k => {
-        document.getElementById(`c-${k}`).innerText = data.tallies[k];
-    });
+    
+    // Initialize display values
+    window.onload = function() {
+        Object.keys(data.tallies).forEach(k => {
+            const el = document.getElementById(`c-${k}`);
+            if(el) el.innerText = data.tallies[k];
+        });
+    };
 </script>
-</body>
-</html>
