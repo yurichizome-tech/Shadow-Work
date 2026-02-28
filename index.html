@@ -5,153 +5,124 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Sovereign Grimoire</title>
     <style>
-        :root { --bg: #050505; --gold: #d4af37; --text: #d0d0d0; --crow: #222; }
-        body { background: var(--bg); color: var(--text); font-family: 'Garamond', serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
+        :root { --bg: #050505; --gold: #d4af37; --text: #d0d0d0; --fade: #1a1a1a; }
+        body { background: var(--bg); color: var(--text); font-family: 'Garamond', serif; margin: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
         
-        /* PROGRESS BAR */
-        .progress-container { width: 100%; height: 6px; background: #111; position: fixed; top: 0; z-index: 3000; }
-        #progress-bar { height: 100%; width: 0%; background: var(--gold); box-shadow: 0 0 15px var(--gold); transition: 0.5s; }
+        /* NAVIGATION */
+        .nav-bar { display: flex; justify-content: space-around; width: 100%; background: #0a0a0a; padding: 20px 0; border-bottom: 1px solid #111; }
+        .nav-btn { background: none; border: none; color: #444; font-weight: bold; cursor: pointer; letter-spacing: 2px; }
+        .nav-btn.active { color: var(--gold); text-shadow: 0 0 8px var(--gold); }
 
-        /* TABS */
-        .tab-bar { display: flex; justify-content: space-around; width: 100%; background: #0a0a0a; padding: 20px 0; border-bottom: 1px solid #111; margin-top: 6px; }
-        .tab-btn { background: none; border: none; color: #444; font-weight: bold; cursor: pointer; letter-spacing: 2px; }
-        .tab-btn.active { color: var(--gold); text-shadow: 0 0 5px var(--gold); }
+        .view { width: 92%; max-width: 600px; display: none; padding-top: 20px; }
+        .view.active { display: block; }
 
-        .container { width: 92%; max-width: 600px; display: none; padding-top: 20px; }
-        .container.active { display: block; }
+        /* THE TORCHES (TALLIES) */
+        .torch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        .torch-card { background: #0d0d0d; border: 1px solid #222; padding: 20px; border-radius: 5px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .torch-card:active { border-color: var(--gold); box-shadow: 0 0 10px var(--gold); }
+        .torch-count { font-size: 1.8rem; color: var(--gold); display: block; margin-bottom: 5px; font-weight: bold; }
 
-        /* TALLIES */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
-        .tally-card { background: #0d0d0d; border: 1px solid #222; padding: 20px; border-radius: 5px; text-align: center; cursor: pointer; }
-        .tally-count { font-size: 2rem; color: var(--gold); display: block; margin-bottom: 5px; }
+        /* MY GARDEN (TASKS) */
+        .task-group { border: 1px solid #1a1a1a; padding: 20px; margin-bottom: 20px; border-radius: 5px; }
+        .task-header { color: var(--gold); font-size: 1rem; letter-spacing: 3px; margin-bottom: 15px; text-transform: uppercase; border-bottom: 1px solid #111; padding-bottom: 5px; }
+        .subtask { padding: 12px; margin: 8px 0; border: 1px solid #222; background: #050505; color: #555; cursor: pointer; transition: 0.4s; }
+        .subtask.completed { color: var(--gold); border-color: var(--gold); background: #0a0800; box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.1); }
 
-        /* TASK GROUPS */
-        .task-group { border: 1px solid #1a1a1a; padding: 20px; margin-bottom: 20px; transition: 0.5s; }
-        .task-group.all-done { border-color: var(--gold); box-shadow: inset 0 0 10px rgba(212, 175, 55, 0.2); }
-        .task-header { color: #555; font-size: 1rem; letter-spacing: 3px; margin-bottom: 15px; transition: 0.5s; }
-        .task-group.all-done .task-header { color: var(--gold); text-shadow: 0 0 10px var(--gold); }
-        
-        .subtask { padding: 15px; margin: 10px 0; border: 1px solid #222; background: #050505; color: #666; cursor: pointer; display: flex; justify-content: space-between; transition: 0.4s; }
-        .subtask.completed { color: var(--gold); border-color: var(--gold); text-shadow: 0 0 5px var(--gold); background: #0a0800; }
+        /* THE VAULT ENTRANCE */
+        .vault-gate { text-align: center; padding-top: 60px; }
+        .key-input { background: #000; border: 1px solid #222; color: var(--gold); padding: 15px; width: 70%; text-align: center; font-family: serif; font-size: 1.1rem; outline: none; margin-bottom: 20px; }
+        .keyhole-btn { 
+            width: 60px; height: 90px; background: var(--gold); clip-path: polygon(50% 0%, 100% 30%, 100% 70%, 70% 70%, 70% 100%, 30% 100%, 30% 70%, 0% 70%, 0% 30%); 
+            border: none; cursor: pointer; margin: 0 auto; display: block; transition: 0.3s; opacity: 0.6;
+        }
+        .keyhole-btn:hover { opacity: 1; transform: scale(1.05); }
 
-        /* THE WARD (LOCK) */
-        .ward-area { text-align: center; padding-top: 50px; }
-        #ward-btn { width: 100px; height: 100px; border-radius: 50%; border: 2px solid #222; background: none; color: #333; cursor: pointer; transition: 0.3s; }
-        #ward-btn:active { border-color: var(--gold); color: var(--gold); box-shadow: 0 0 20px var(--gold); }
-
-        /* VAULT OVERLAY */
-        .vault-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 4000; flex-direction: column; align-items: center; justify-content: center; }
-        #shadow-text { width: 80%; height: 300px; background: #050505; color: #888; border: 1px solid #111; padding: 20px; font-size: 1.2rem; outline: none; }
-        .crow-particle { position: absolute; width: 14px; height: 10px; background: #333; clip-path: polygon(0% 20%, 50% 50%, 100% 20%, 50% 100%); z-index: 4001; pointer-events: none; opacity: 0.8; box-shadow: 0 0 2px #000; }
-        @keyframes flyOff { to { transform: translate(var(--twx), var(--twy)) rotate(var(--tr)) scale(0); opacity: 0; } }
+        /* THE VOID */
+        .void-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 5000; flex-direction: column; align-items: center; justify-content: center; }
+        #void-text { width: 85%; height: 300px; background: #050505; color: #888; border: 1px solid #111; padding: 20px; font-size: 1.2rem; outline: none; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-    <div class="progress-container"><div id="progress-bar"></div></div>
-
-    <div class="tab-bar">
-        <button class="tab-btn active" onclick="setTab('daily')">TRIAGE</button>
-        <button class="tab-btn" onclick="setTab('projects')">PROJECTS</button>
-        <button class="tab-btn" onclick="setTab('vault-gate')">VAULT</button>
+    <div class="nav-bar">
+        <button class="nav-btn active" onclick="showView('torches')">TORCHES</button>
+        <button class="nav-btn" onclick="showView('garden')">MY GARDEN</button>
+        <button class="nav-btn" onclick="showView('gate')">VAULT</button>
     </div>
 
-    <div id="daily" class="container active">
-        <div class="grid">
-            <div class="tally-card" onclick="addTally('saidNo')"><span id="c-saidNo" class="tally-count">0</span>Said No</div>
-            <div class="tally-card" onclick="addTally('heldSilence')"><span id="c-heldSilence" class="tally-count">0</span>Silence Held</div>
-        </div>
-        <div class="task-group" id="group-laundry">
-            <div class="task-header">LAUNDRY</div>
-            <div class="subtask" onclick="toggleT(this, 'group-laundry')">Wash & Rinse</div>
-            <div class="subtask" onclick="toggleT(this, 'group-laundry')">The Hanging</div>
-            <div class="subtask" onclick="toggleT(this, 'group-laundry')">Fold & Center</div>
+    <div id="torches" class="view active">
+        <div class="torch-grid">
+            <div class="torch-card" onclick="upTally('no')"><span id="t-no" class="torch-count">0</span>No!</div>
+            <div class="torch-card" onclick="upTally('silence')"><span id="t-silence" class="torch-count">0</span>Silence Held</div>
+            <div class="torch-card" onclick="upTally('ward')"><span id="t-ward" class="torch-count">0</span>Held the Ward</div>
+            <div class="torch-card" onclick="upTally('voices')"><span id="t-voices" class="torch-count">0</span>Urged by voices...</div>
         </div>
     </div>
 
-    <div id="projects" class="container">
-        <div class="task-group" id="group-garden">
-            <div class="task-header">GARDEN SANCTUARY</div>
-            <div class="subtask" onclick="toggleT(this, 'group-garden')">Seedling Care</div>
-            <div class="subtask" onclick="toggleT(this, 'group-garden')">Source Hekate Key</div>
+    <div id="garden" class="view">
+        <div class="task-group">
+            <div class="task-header">Laundry</div>
+            <div class="subtask" onclick="this.classList.toggle('completed')">Wash & Rinse</div>
+            <div class="subtask" onclick="this.classList.toggle('completed')">The Hanging</div>
+            <div class="subtask" onclick="this.classList.toggle('completed')">Fold & Center</div>
+        </div>
+        <div class="task-group">
+            <div class="task-header">Cupcakes</div>
+            <div class="subtask" onclick="this.classList.toggle('completed')">The Mixing</div>
+            <div class="subtask" onclick="this.classList.toggle('completed')">Fire & Bake</div>
+            <div class="subtask" onclick="this.classList.toggle('completed')">Decoration</div>
         </div>
     </div>
 
-    <div id="vault-gate" class="container ward-area">
-        <p style="color: #222; letter-spacing: 5px;">HOLD TO UNLOCK</p>
-        <button id="ward-btn" onmousedown="startLock()" onmouseup="stopLock()" ontouchstart="startLock()" ontouchend="stopLock()">KLIDOUS</button>
+    <div id="gate" class="view vault-gate">
+        <p style="color: #333; letter-spacing: 4px;">Speak the words...</p>
+        <input type="password" id="pass-box" class="key-input" placeholder="...">
+        <button class="keyhole-btn" onclick="checkKey()"></button>
     </div>
 
-    <div id="vault-overlay" class="vault-overlay">
-        <h2 style="color: #111; letter-spacing: 10px;">THE VOID</h2>
-        <textarea id="shadow-text" placeholder="Release the weight..."></textarea>
-        <button onclick="feedCrows()" style="background:none; border:1px solid #333; color:#333; padding:15px 40px; margin-top:20px; cursor:pointer;">RELEASE</button>
-        <button onclick="closeVault()" style="background:none; border:none; color:#111; margin-top:40px; cursor:pointer;">[ SEAL & EXIT ]</button>
+    <div id="void-overlay" class="void-overlay">
+        <h2 style="color: #111; letter-spacing: 12px;">THE VOID</h2>
+        <textarea id="void-text" placeholder="Release..."></textarea>
+        <button onclick="closeVoid()" style="background:none; border:none; color:#222; cursor:pointer;">[ SEAL ]</button>
     </div>
 
     <script>
-        let state = JSON.parse(localStorage.getItem('sov_v65')) || { tallies: { saidNo: 0, heldSilence: 0 }, totalWins: 0 };
-        let lockTimer;
+        let data = JSON.parse(localStorage.getItem('sov_v66')) || { no:0, silence:0, ward:0, voices:0 };
 
-        function setTab(id) {
-            document.querySelectorAll('.container').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        function showView(id) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             event.currentTarget.classList.add('active');
         }
 
-        function toggleT(el, groupId) {
-            el.classList.toggle('completed');
-            const group = document.getElementById(groupId);
-            const subs = group.querySelectorAll('.subtask');
-            const done = group.querySelectorAll('.subtask.completed');
-            if(subs.length === done.length) group.classList.add('all-done');
-            else group.classList.remove('all-done');
-            updateProg();
+        function upTally(key) {
+            data[key]++;
+            document.getElementById(`t-${key}`).innerText = data[key];
+            localStorage.setItem('sov_v66', JSON.stringify(data));
         }
 
-        function addTally(key) {
-            state.tallies[key]++;
-            state.totalWins++;
-            document.getElementById(`c-${key}`).innerText = state.tallies[key];
-            localStorage.setItem('sov_v65', JSON.stringify(state));
-            updateProg();
-        }
-
-        function updateProg() {
-            const tasks = document.querySelectorAll('.subtask').length;
-            const completed = document.querySelectorAll('.subtask.completed').length;
-            const progress = ((completed + state.totalWins) / (tasks + 20)) * 100; // Weighted bar
-            document.getElementById('progress-bar').style.width = Math.min(progress, 100) + '%';
-        }
-
-        function startLock() { lockTimer = setTimeout(() => { document.getElementById('vault-overlay').style.display = 'flex'; }, 1500); }
-        function stopLock() { clearTimeout(lockTimer); }
-        function closeVault() { document.getElementById('vault-overlay').style.display = 'none'; setTab('daily'); }
-
-        function feedCrows() {
-            const area = document.getElementById('shadow-text');
-            if(!area.value) return;
-            for(let i=0; i<50; i++) {
-                const c = document.createElement('div');
-                c.className = 'crow-particle';
-                const r = area.getBoundingClientRect();
-                c.style.left = (r.left + Math.random() * r.width) + 'px';
-                c.style.top = (r.top + Math.random() * r.height) + 'px';
-                c.style.setProperty('--twx', (Math.random() * 1000 - 500) + 'px');
-                c.style.setProperty('--twy', (Math.random() * -1000 - 200) + 'px');
-                c.style.setProperty('--tr', (Math.random() * 720) + 'deg');
-                c.style.animation = "flyOff 2s forwards ease-in";
-                document.body.appendChild(c);
-                setTimeout(() => c.remove(), 2000);
+        function checkKey() {
+            const input = document.getElementById('pass-box').value;
+            if(input.toLowerCase() === "kleidouchos") {
+                document.getElementById('void-overlay').style.display = 'flex';
+                document.getElementById('pass-box').value = "";
+            } else {
+                alert("The gate remains closed.");
+                document.getElementById('pass-box').value = "";
             }
-            area.style.opacity = "0";
-            setTimeout(() => { area.value = ""; area.style.opacity = "1"; closeVault(); }, 1800);
         }
 
-        document.getElementById('c-saidNo').innerText = state.tallies.saidNo;
-        document.getElementById('c-heldSilence').innerText = state.tallies.heldSilence;
-        updateProg();
+        function closeVoid() {
+            document.getElementById('void-overlay').style.display = 'none';
+            showView('torches');
+        }
+
+        // Init
+        document.getElementById('t-no').innerText = data.no;
+        document.getElementById('t-silence').innerText = data.silence;
+        document.getElementById('t-ward').innerText = data.ward;
+        document.getElementById('t-voices').innerText = data.voices;
     </script>
 </body>
 </html>
