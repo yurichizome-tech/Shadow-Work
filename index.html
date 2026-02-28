@@ -1,55 +1,106 @@
-<style>
-    /* Alchemical Transmutation Styles */
-    .subtask { 
-        padding: 8px; margin: 5px 0; border: 1px solid #222; 
-        transition: all 0.5s ease; cursor: pointer; color: #888;
-    }
-    .subtask.completed { 
-        color: #d4af37; border: 1px solid #d4af37; 
-        box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
-        background: linear-gradient(45deg, #1a1a1a, #000);
-        text-shadow: 0 0 5px #d4af37;
-        animation: scorch 0.4s ease;
-    }
-    @keyframes scorch {
-        0% { filter: brightness(1); border-color: #fff; }
-        50% { filter: brightness(3); border-color: #fff; box-shadow: 0 0 20px #fff; }
-        100% { filter: brightness(1); border-color: #d4af37; }
-    }
-
-    /* The Feast of Crows Animation */
-    @keyframes flyOff {
-        0% { transform: scale(1); opacity: 1; }
-        100% { transform: translateY(-500px) translateX(200px) rotate(20deg) scale(0); opacity: 0; }
-    }
-    .crow-particle { 
-        position: absolute; width: 10px; height: 10px; background: black; 
-        clip-path: polygon(0% 20%, 50% 50%, 100% 20%, 50% 100%);
-        animation: flyOff 1.5s forwards;
-    }
-</style>
-
-<script>
-    function feedCrows() {
-        const area = document.getElementById('shadow-text');
-        if (!area.value) return;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Sovereign Grimoire</title>
+    <style>
+        :root { --bg: #050505; --gold: #d4af37; --text: #d0d0d0; }
+        body { background: var(--bg); color: var(--text); font-family: 'Garamond', serif; margin: 0; display: flex; flex-direction: column; align-items: center; padding-bottom: 50px; }
         
-        // Visual: Create 20 "Crows" that fly away
-        for(let i=0; i<20; i++) {
-            let p = document.createElement('div');
-            p.className = 'crow-particle';
-            p.style.left = (area.offsetLeft + Math.random() * area.offsetWidth) + 'px';
-            p.style.top = (area.offsetTop + Math.random() * area.offsetHeight) + 'px';
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 1500);
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 90%; max-width: 500px; margin: 30px 0; }
+        .tally-card { background: #111; border: 1px solid #333; padding: 20px; border-radius: 10px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .tally-count { font-size: 2rem; color: var(--gold); display: block; font-weight: bold; }
+
+        .task-group { width: 90%; max-width: 500px; margin: 20px 0; border: 1px solid #222; padding: 15px; border-radius: 8px; }
+        .task-header { color: var(--gold); font-size: 1.1rem; margin-bottom: 10px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid #222; }
+        .subtask { padding: 12px; margin: 8px 0; border: 1px solid #333; background: #0a0a0a; transition: all 0.6s; cursor: pointer; color: #666; }
+        .subtask.completed { 
+            color: var(--gold); border: 2px solid var(--gold); 
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+            background: linear-gradient(45deg, #1a1a1a, #000);
+            text-shadow: 0 0 8px #d4af37;
+            animation: alchemicalScorch 0.5s ease-out;
         }
-        
-        area.style.transition = "opacity 1s";
-        area.style.opacity = "0";
-        setTimeout(() => {
-            area.value = "";
-            area.style.opacity = "1";
-            closeVault();
-        }, 1200);
-    }
-</script>
+        @keyframes alchemicalScorch {
+            0% { filter: brightness(1); box-shadow: 0 0 0px #fff; }
+            50% { filter: brightness(4); box-shadow: 0 0 30px #fff; }
+            100% { filter: brightness(1); }
+        }
+
+        .vault-container { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; flex-direction: column; align-items: center; justify-content: center; }
+        #shadow-text { width: 85%; height: 250px; background: #0a0a0a; color: #888; border: 1px solid #222; padding: 20px; outline: none; }
+        .crow-particle { position: absolute; width: 12px; height: 8px; background: #000; clip-path: polygon(0% 20%, 50% 50%, 100% 20%, 50% 100%); z-index: 1001; pointer-events: none; }
+        @keyframes flyAway { to { transform: translate(var(--twx), var(--twy)) rotate(var(--tr)) scale(0); opacity: 0; } }
+
+        .btn-gold { background: none; border: 1px solid var(--gold); color: var(--gold); padding: 15px 30px; cursor: pointer; margin-top: 20px; letter-spacing: 3px; }
+    </style>
+</head>
+<body>
+
+    <div class="grid">
+        <div class="tally-card" onclick="addTally('saidNo')"><span id="count-saidNo" class="tally-count">0</span>Said No</div>
+        <div class="tally-card" onclick="addTally('heldSilence')"><span id="count-heldSilence" class="tally-count">0</span>Silence Held</div>
+    </div>
+
+    <div class="task-group">
+        <div class="task-header">Laundry (Cleansing)</div>
+        <div class="subtask" onclick="toggleTask(this)">Wash & Rinse</div>
+        <div class="subtask" onclick="toggleTask(this)">The Hanging</div>
+        <div class="subtask" onclick="toggleTask(this)">Fold & Center</div>
+    </div>
+
+    <div class="task-group">
+        <div class="task-header">Cupcakes (Offering)</div>
+        <div class="subtask" onclick="toggleTask(this)">The Mixing</div>
+        <div class="subtask" onclick="toggleTask(this)">Fire & Bake</div>
+        <div class="subtask" onclick="toggleTask(this)">Decoration</div>
+    </div>
+
+    <div class="task-group">
+        <div class="task-header">Seedlings (Growth)</div>
+        <div class="subtask" onclick="toggleTask(this)">Hydrate Root</div>
+        <div class="subtask" onclick="toggleTask(this)">Seek the Light</div>
+        <div class="subtask" onclick="toggleTask(this)">Whisper Words</div>
+    </div>
+
+    <button class="btn-gold" onclick="openVault()">ENTER THE VAULT</button>
+
+    <div id="vault" class="vault-container">
+        <h2 style="color: #222; letter-spacing: 8px;">KLIDOUS</h2>
+        <textarea id="shadow-text" placeholder="Release to the crows..."></textarea>
+        <button class="btn-gold" onclick="feedCrows()">RELEASE</button>
+        <button style="background:none; border:none; color:#333; margin-top:50px; cursor:pointer;" onclick="closeVault()">[ SEAL ]</button>
+    </div>
+
+    <script>
+        let state = JSON.parse(localStorage.getItem('sovereign_v6')) || { tallies: { saidNo: 0, heldSilence: 0 } };
+        function save() { localStorage.setItem('sovereign_v6', JSON.stringify(state)); }
+        function toggleTask(el) { el.classList.toggle('completed'); }
+        function addTally(key) { state.tallies[key]++; document.getElementById(`count-${key}`).innerText = state.tallies[key]; save(); }
+        function openVault() { document.getElementById('vault').style.display = 'flex'; }
+        function closeVault() { document.getElementById('vault').style.display = 'none'; }
+        function feedCrows() {
+            const area = document.getElementById('shadow-text');
+            if (!area.value) return;
+            for (let i = 0; i < 40; i++) {
+                const crow = document.createElement('div');
+                crow.className = 'crow-particle';
+                const rect = area.getBoundingClientRect();
+                crow.style.left = (rect.left + Math.random() * rect.width) + 'px';
+                crow.style.top = (rect.top + Math.random() * rect.height) + 'px';
+                crow.style.setProperty('--twx', (Math.random() * 800 - 400) + 'px');
+                crow.style.setProperty('--twy', (Math.random() * -800 - 200) + 'px');
+                crow.style.setProperty('--tr', (Math.random() * 720) + 'deg');
+                crow.style.animation = "flyAway 1.8s forwards ease-in";
+                document.body.appendChild(crow);
+                setTimeout(() => crow.remove(), 1800);
+            }
+            area.style.opacity = "0";
+            setTimeout(() => { area.value = ""; area.style.opacity = "1"; closeVault(); }, 1500);
+        }
+        document.getElementById('count-saidNo').innerText = state.tallies.saidNo;
+        document.getElementById('count-heldSilence').innerText = state.tallies.heldSilence;
+    </script>
+</body>
+</html>
