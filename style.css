@@ -77,22 +77,20 @@ body {
     margin: 0 auto;
 }
 
-.crow {
+.crow-overlay {
     position: absolute;
-    width: 100px; 
-    height: 60px;
-    /* This looks for your gif, but provides a black shape if the gif is missing */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: url('crow.gif') no-repeat center;
-    background-size: contain;
-    background-color: rgba(20, 20, 20, 0.9); 
-    border-radius: 50% 50% 20% 20%; /* A rough bird-like shadow shape */
+    background-size: cover; /* This makes it fill the whole box */
+    opacity: 0;
     pointer-events: none;
-    z-index: 10000;
-    box-shadow: 0 0 10px #000;
+    z-index: 10;
+    transition: opacity 1s ease-in-out;
 }
 
-@keyframes flyAway {
-    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-    10% { opacity: 1; }
-    100% { transform: translate(400px, -600px) scale(2); opacity: 0; }
+.crow-active {
+    opacity: 0.6; /* Adjust this to make the crows more or less ghostly */
 }
