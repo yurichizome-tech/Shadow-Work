@@ -79,13 +79,20 @@ body {
 
 .crow {
     position: absolute;
-    width: 150px; 
-    height: 100px;
-    /* CHANGE THIS LINE FROM .png TO .gif */
-    background: url('crow.gif') no-repeat center; 
+    width: 100px; 
+    height: 60px;
+    /* This looks for your gif, but provides a black shape if the gif is missing */
+    background: url('crow.gif') no-repeat center;
     background-size: contain;
+    background-color: rgba(20, 20, 20, 0.9); 
+    border-radius: 50% 50% 20% 20%; /* A rough bird-like shadow shape */
     pointer-events: none;
-    z-index: 9999;
-    /* Add this to make sure it stands out against the black */
-    filter: brightness(1.2); 
+    z-index: 10000;
+    box-shadow: 0 0 10px #000;
+}
+
+@keyframes flyAway {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    10% { opacity: 1; }
+    100% { transform: translate(400px, -600px) scale(2); opacity: 0; }
 }
