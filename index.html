@@ -1,4 +1,23 @@
-<main id="content">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Sovereign Grimoire</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="bar-bg"><div id="bar-fill" style="width: 0%;"></div></div>
+    
+    <nav class="nav-bar">
+        <button class="nav-btn" onclick="openBranch('garden')">MY GARDEN</button>
+        <button class="nav-btn" onclick="openBranch('torches')">TORCHES</button>
+        <button class="nav-btn" onclick="openBranch('vault')">THE VAULT</button>
+        <button class="nav-btn" onclick="openBranch('void')">THE VOID</button>
+    </nav>
+
+    <main id="content">
         <div id="garden" class="branch-content" style="display:none;"></div>
         <div id="torches" class="branch-content" style="display:none;"></div>
         <div id="vault" class="branch-content" style="display:none;"></div>
@@ -12,38 +31,40 @@
 
     <script>
         function openBranch(branchId) {
-            // 1. Hide everything
+            console.log("Switching to: " + branchId);
+            
+            // 1. Hide all rooms
             const sections = document.querySelectorAll('.branch-content');
             sections.forEach(s => s.style.display = 'none');
             
-            // 2. Show the specific tab
+            // 2. Show the one you clicked
             const target = document.getElementById(branchId);
             if (target) { 
                 target.style.display = 'block'; 
                 
-                // 3. Wake up the code for that tab
+                // 3. THE SWITCHBOARD: Wakes up the logic
                 if (branchId === 'torches' && typeof refreshTorches === 'function') {
                     refreshTorches();
                 }
                 if (branchId === 'garden' && typeof refreshGarden === 'function') {
                     refreshGarden();
                 }
-                    if (branchId === 'vault' && typeof refreshVault === 'function') {
-                         refreshVault();
-                    }
-                    if (branchId === 'void' && typeof refreshVoid === 'function') {
-                        refreshVoid();
-                    }
+                if (branchId === 'vault' && typeof refreshVault === 'function') {
+                    refreshVault();
+                }
+                if (branchId === 'void' && typeof refreshVoid === 'function') {
+                    refreshVoid();
+                }
             }
             
-            // 4. Make the button glow
+            // 4. Glow effect for buttons
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             if (event && event.currentTarget) {
                 event.currentTarget.classList.add('active');
             }
         }
 
-        // Default to the Garden view on startup
+        // Start at the Garden
         window.onload = () => { 
             openBranch('garden'); 
         };
