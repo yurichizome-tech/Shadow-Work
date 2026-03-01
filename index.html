@@ -32,5 +32,21 @@
     <script src="torches.js"></script>
     <script src="vault.js"></script>
     <script src="void.js"></script>
+
+    <script>
+function openBranch(branchId) {
+    // Hide all branches
+    const branches = document.querySelectorAll('.branch-content');
+    branches.forEach(b => b.style.display = 'none');
+
+    // Show the selected branch
+    const target = document.getElementById(branchId);
+    if (target) {
+        target.style.display = 'block';
+    }
+}
+</script>
+
+    
 </body>
 </html>
