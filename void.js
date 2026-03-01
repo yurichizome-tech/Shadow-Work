@@ -27,21 +27,26 @@ function feedCrows() {
 
     if (!area || area.value.trim() === "") return;
 
-    // 1. Fade out the text/input
+    // 1. SUMMON THE SOUNDS
+    // Note: Make sure the file extension (.mp3 or .wav) matches exactly!
+    const murderSound = new Audio('Crow murder caw.mp3'); 
+    const singleSound = new Audio('single crow caw.mp3');
+
+    // 2. START THE FEAST
+    murderSound.play().catch(e => console.log("Audio blocked by browser. Click again."));
+    
     content.style.opacity = "0";
     msg.innerText = "The feast begins...";
-
-    // 2. SWAP THE BACKGROUND to your crow gif
-    // Make sure the filename matches what is on your GitHub
     voidDiv.style.backgroundImage = "url('crow.gif')";
 
-    // 3. Reset the room after 6 seconds
+    // 3. THE FINAL CAW & RESET
     setTimeout(() => {
+        singleSound.play().catch(e => {}); // One last cry before the silence
+        
         voidDiv.style.backgroundImage = "none";
         content.style.opacity = "1";
         area.value = "";
         msg.innerText = "The silence returns.";
-    }, 6000);
+    }, 6000); // 6 seconds of feasting
 }
-
 refreshVoid();
