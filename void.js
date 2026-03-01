@@ -3,17 +3,8 @@ function refreshVoid() {
     if (!container) return;
     
     container.innerHTML = `
-        <div style="text-align:center; padding: 40px 20px; min-height: 80vh;">
-            <h2 style="color: #1a1a1a; letter-spacing: 15px; margin-bottom: 30px;">THE VOID</h2>
-            
-            <textarea id="void-input" 
-                placeholder="Release your thoughts here..." 
-                style="width: 90%; height: 250px; background: #050505; color: #666; 
-                       border: 1px solid #111; padding: 20px; font-family: 'Garamond', serif; 
-                       font-size: 1.1rem; outline: none; transition: opacity 3s ease-in-out;"></textarea>
-            
-            <div style="margin-top: 30px;">
-                <button onclick="feedCrows()" 
+        <div style="margin-top: 30px;">
+                <button onmousedown="playVoidSound()" onclick="feedCrows()" 
                     style="background: none; border: 1px solid #222; color: #444; 
                            padding: 12px 30px; cursor: pointer; letter-spacing: 3px; font-size: 0.8rem;">
                     FEED THE CROWS
