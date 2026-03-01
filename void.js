@@ -27,50 +27,65 @@ function feedCrows() {
 
     if (!area || area.value.trim() === "") return;
 
-    // Fade the text out
-    area.style.opacity = "0";
-    msg.innerText = "The feast begins...";
-
-    // Force the crows to spawn
-    for(let i=0; i<8; i++) {
-        setTimeout(() => {
-            const crow = document.createElement('div');
-            crow.className = 'crow';
-            // Start from center of the void
-            crow.style.left = "50%";
-            crow.style.top = "50%";
-            crow.style.animation = `flyAway ${1.5 + Math.random()}s ease-in forwards`;
-            voidDiv.appendChild(crow);
-            
-            // Cleanup the bird after it flies away
-            setTimeout(() => crow.remove(), 2500);
-        }, i * 150);
+    // Create the overlay if it doesn't exist
+    let overlay = document.querySelector('.crow-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'crow-overlay';
+        voidDiv.appendChild(overlay);
     }
 
-    // Reset the room
+    // Start the Ritual
+    playVoidEffects(); // Attempting sound again
+    area.style.opacity = "0";
+    msg.innerText = "The feast begins...";
+    overlay.classList.add('crow-active');
+
+    // Reset after 5 seconds
     setTimeout(() => {
         area.value = "";
         area.style.opacity = "1";
+        overlay.classList.remove('crow-active');
         msg.innerText = "The silence returns.";
-    }, 4000);
+    }, 5000);
 }
 
 function playVoidEffects() {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(50, audioCtx.currentTime); // Deep hum
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.5);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 1.5);
-    } catch(e) { console.log("Audio Blocked"); }
-}
+        
+        // This is the key: Resume MUST happen inside the click/mousedown event
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
 
+        const bufferSize = audioCtx.sampleRate * 1.5; // 1.5 seconds
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+
+        // Create a "Wind/Staticky" sound instead of a beep
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(400, audioCtx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 1.5);
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.5);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        noise.start();
+    } catch(e) { console.log("Audio failed:", e); }
+}
 // Initialize
 refreshVoid();
