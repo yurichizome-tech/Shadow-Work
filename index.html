@@ -3,91 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calligo - Torches & Safety</title>
+    <title>Calligo - Sovereign Build</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #0a0a0a; color: #e0e0e0; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .gold-glow { box-shadow: 0 0 15px rgba(212, 175, 55, 0.3); border-color: rgba(212, 175, 55, 0.5); }
-        .red-hold { background: rgba(220, 38, 38, 0.2); border: 2px solid #dc2626; transition: all 0.2s; }
-        .red-hold:active { background: #dc2626; transform: scale(0.95); }
-        .log-entry { font-family: 'Courier New', monospace; font-size: 0.85rem; border-left: 2px solid #d4af37; }
+        body { background-color: #050505; color: #d4af37; font-family: 'Inter', sans-serif; overflow: hidden; }
+        .tab-active { border-bottom: 2px solid #d4af37; color: #fff; }
+        .glass-card { background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(212, 175, 55, 0.2); }
+        .tally-btn { transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+        .tally-btn:active { transform: scale(0.92); background: rgba(212, 175, 55, 0.1); }
+        .red-reset { border: 1px solid #7f1d1d; color: #ef4444; }
+        /* Hidden input overlay */
+        #detail-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 50; }
     </style>
 </head>
-<body class="p-6">
+<body class="h-screen flex flex-col">
 
-    <div class="max-w-md mx-auto mb-8">
-        <div class="flex justify-between mb-2 px-1 text-sm">
-            <span class="text-yellow-500">Sovereignty</span>
-            <span id="progress-text">5%</span>
-        </div>
-        <div class="w-full bg-gray-800 rounded-full h-4 overflow-hidden border border-gray-700">
-            <div id="vbo-bar" class="bg-gradient-to-r from-yellow-600 via-purple-600 to-green-600 h-full transition-all duration-500" style="width: 5%"></div>
-        </div>
-    </div>
+    <nav class="flex justify-around p-4 border-b border-gray-900 text-xs uppercase tracking-widest">
+        <button class="tab-active">Corridor</button>
+        <button class="text-gray-600">Garden</button>
+        <button class="text-gray-600">Vault</button>
+    </nav>
 
-    <div class="max-w-md mx-auto grid grid-cols-2 gap-4 mb-8">
-        <button onclick="logTally('The Ward')" class="glass p-4 rounded-xl gold-glow active:scale-95 transition">Hold the Ward</button>
-        <button onclick="logTally('Silence Held')" class="glass p-4 rounded-xl active:scale-95 transition">Silence Held</button>
-        <button onclick="triggerUrge()" class="glass p-4 rounded-xl border-orange-900 active:scale-95 transition text-orange-400">Log Urge</button>
-        <button onclick="logTally('No!')" class="glass p-4 rounded-xl active:scale-95 transition font-bold">"No!"</button>
-    </div>
-
-    <div class="max-w-md mx-auto glass rounded-2xl p-4 h-64 flex flex-col">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xs uppercase tracking-widest text-gray-400">The Ledger</h3>
-            <button id="reset-btn" onmousedown="startReset()" onmouseup="cancelReset()" onmouseleave="cancelReset()" class="red-hold px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-tighter">Hold to Reset</button>
+    <main class="flex-1 p-6 overflow-y-auto">
+        <div class="mb-8">
+            <div class="flex justify-between text-[10px] mb-1 uppercase"><span>Alchemical Progress</span><span>5%</span></div>
+            <div class="h-1 w-full bg-gray-900 rounded-full"><div class="h-full bg-gradient-to-r from-yellow-700 to-green-700 w-[5%]"></div></div>
         </div>
-        <div id="log-list" class="flex-1 overflow-y-auto space-y-2 pr-2">
+
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <button onmousedown="startTimer('The Ward')" onmouseup="endTimer()" ontouchstart="startTimer('The Ward')" ontouchend="endTimer()" class="glass-card p-6 rounded-lg tally-btn">The Ward</button>
+            <button onmousedown="startTimer('Silence')" onmouseup="endTimer()" ontouchstart="startTimer('Silence')" ontouchend="endTimer()" class="glass-card p-6 rounded-lg tally-btn">Silence</button>
+            <button onmousedown="startTimer('Whispers')" onmouseup="endTimer()" ontouchstart="startTimer('Whispers')" ontouchend="endTimer()" class="glass-card p-6 rounded-lg tally-btn text-orange-200">Whispers</button>
+            <button onmousedown="startTimer('No!')" onmouseup="endTimer()" ontouchstart="startTimer('No!')" ontouchend="endTimer()" class="glass-card p-6 rounded-lg tally-btn font-bold">"No!"</button>
+        </div>
+
+        <div class="glass-card rounded-lg p-4 h-48 overflow-y-auto text-[11px] font-mono" id="ledger">
+            <div class="text-gray-600 mb-2 border-b border-gray-800 pb-1 flex justify-between">
+                <span>SYSTEM LOG</span>
+                <button id="reset-btn" class="red-reset px-2 rounded">RESET</button>
             </div>
+            </div>
+    </main>
+
+    <div id="detail-overlay" class="flex items-center justify-center p-6">
+        <div class="glass-card w-full p-6 rounded-2xl">
+            <h2 id="detail-title" class="mb-4 text-center">Add Detail</h2>
+            <textarea id="detail-text" class="w-full bg-black border border-gray-800 p-3 rounded mb-4" placeholder="Optional notes..."></textarea>
+            <button onclick="saveDetail()" class="w-full py-3 bg-yellow-900/20 border border-yellow-700 rounded-lg">Save & Return</button>
+        </div>
     </div>
 
     <script>
-        let urgeCount = 0;
-        let lastUrgeTime = 0;
+        let timer;
+        let currentType = "";
 
-        function logTally(type) {
-            const reason = prompt(`Reason for ${type}? (Optional)`) || "No specifics provided.";
-            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            addEntry(timestamp, type, reason);
+        function startTimer(type) {
+            currentType = type;
+            timer = setTimeout(() => {
+                showDetail(type);
+            }, 800); // 1 second long press
         }
 
-        function triggerUrge() {
-            const intensity = prompt("Intensity (1-10)?");
-            const now = Date.now();
-            
-            // Frequency Logic
-            if (now - lastUrgeTime < 3600000) urgeCount++; else urgeCount = 1;
-            lastUrgeTime = now;
-
-            if (intensity >= 7 || urgeCount >= 3) {
-                alert("Messenger Crow sent to Matt: 'Vibe check needed.'");
-            }
-
-            logTally(`URGE [Lv.${intensity}]`);
-        }
-
-        function addEntry(time, type, reason) {
-            const logList = document.getElementById('log-list');
-            const entry = document.createElement('div');
-            entry.className = "log-entry bg-black/40 p-2 rounded ml-1";
-            entry.innerHTML = `<span class="text-gray-500">[${time}]</span> <span class="text-yellow-600 font-bold">${type}</span><br><span class="text-gray-400 italic">${reason}</span>`;
-            logList.prepend(entry);
-        }
-
-        let resetTimer;
-        function startReset() {
-            resetTimer = setTimeout(() => {
-                if(confirm("Limit Reached at 95%. System in Survival Mode. Reset required? (SMS will be sent)")) {
-                    document.getElementById('log-list').innerHTML = '';
-                    document.getElementById('vbo-bar').style.width = '0%';
-                    document.getElementById('progress-text').innerText = '0%';
-                    alert("SMS Sent to Matt: 'Survival Mode Engaged. Resetting.'");
+        function endTimer() {
+            if (timer) {
+                clearTimeout(timer);
+                if (currentType !== "") {
+                    logEntry(currentType, "Standard Tally");
+                    currentType = "";
                 }
-            }, 3000);
+            }
         }
 
-        function cancelReset() { clearTimeout(resetTimer); }
+        function showDetail(type) {
+            clearTimeout(timer);
+            currentType = ""; // Prevent double log
+            document.getElementById('detail-title').innerText = `Detail: ${type}`;
+            document.getElementById('detail-overlay').style.display = 'flex';
+        }
+
+        function saveDetail() {
+            const text = document.getElementById('detail-text').value;
+            logEntry(document.getElementById('detail-title').innerText.replace('Detail: ', ''), text);
+            document.getElementById('detail-overlay').style.display = 'none';
+            document.getElementById('detail-text').value = "";
+        }
+
+        function logEntry(type, note) {
+            const ledger = document.getElementById('ledger');
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const div = document.createElement('div');
+            div.className = "mb-1 border-l border-yellow-900 pl-2";
+            div.innerHTML = `<span class="text-gray-600">[${time}]</span> ${type}: ${note}`;
+            ledger.prepend(div);
+        }
     </script>
 </body>
 </html>
