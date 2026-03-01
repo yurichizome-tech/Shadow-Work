@@ -47,6 +47,16 @@ function openBranch(branchId) {
 }
 </script>
 
+  <div id="torches" class="branch-content" style="display:none;">
+    <h2>The Torches</h2>
+    <div class="torch-item">
+        <button onclick="tally(1)">🔥 Torch 1</button>
+        <span id="torch-count-1">0</span>
+    </div>
+    </div>
+  
+
+    
         <div id="vault" class="branch-content" style="display:none;">
         <h2 id="vault-lock-msg">🔒 Vault Locked</h2>
         <button onclick="toggleVault()">Attempt Unlock</button>
