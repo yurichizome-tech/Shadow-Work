@@ -47,6 +47,24 @@ function openBranch(branchId) {
 }
 </script>
 
+        <div id="vault" class="branch-content" style="display:none;">
+        <h2 id="vault-lock-msg">🔒 Vault Locked</h2>
+        <button onclick="toggleVault()">Attempt Unlock</button>
+        <div id="vault-content" style="display:none; margin-top:20px;">
+            <p>Your secret treasures and private notes go here.</p>
+        </div>
+    </div>
+
+    <div id="void" class="branch-content" style="display:none;">
+        <h2>The Void</h2>
+        <button onclick="enterTheVoid()">Meditate</button>
+    </div>
+
+    <script src="garden.js"></script>
+    <script src="torches.js"></script>
+    <script src="vault.js"></script>
+    <script src="void.js"></script>
+
     
 </body>
 </html>
