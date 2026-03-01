@@ -1,8 +1,11 @@
+// 1. PRELOAD THE SOUNDS (This stops the delay)
+const murderSound = new Audio('Crow murder caw.mp3');
+const singleSound = new Audio('single crow caw.mp3');
+
 function refreshVoid() {
     const container = document.getElementById('void');
     if (!container) return;
     
-    // We wrap everything in a "content" div so we can fade it out easily
     container.innerHTML = `
         <div id="void-content">
             <h2 style="color: #111; letter-spacing: 15px; margin-bottom: 20px;">THE VOID</h2>
@@ -27,26 +30,27 @@ function feedCrows() {
 
     if (!area || area.value.trim() === "") return;
 
-    // 1. SUMMON THE SOUNDS
-    // Note: Make sure the file extension (.mp3 or .wav) matches exactly!
-    const murderSound = new Audio('Crow murder caw.mp3'); 
-    const singleSound = new Audio('single crow caw.mp3');
+    // 2. PLAY SOUND (Phones require a user-click to trigger sound)
+    murderSound.currentTime = 0; // Resets sound to start immediately
+    murderSound.play().catch(e => console.log("Mobile tap needed"));
 
-    // 2. START THE FEAST
-    murderSound.play().catch(e => console.log("Audio blocked by browser. Click again."));
-    
+    // 3. CINEMATIC TRANSITION
     content.style.opacity = "0";
     msg.innerText = "The feast begins...";
-    voidDiv.style.backgroundImage = "url('crow.gif')";
-
-    // 3. THE FINAL CAW & RESET
+    
+    // Smoothly bring the crows in
     setTimeout(() => {
-        singleSound.play().catch(e => {}); // One last cry before the silence
-        
+        voidDiv.style.backgroundImage = "url('crow.gif')";
+    }, 500);
+
+    // 4. RESET WITH THE SINGLE CAW
+    setTimeout(() => {
+        singleSound.play().catch(e => {});
         voidDiv.style.backgroundImage = "none";
         content.style.opacity = "1";
         area.value = "";
         msg.innerText = "The silence returns.";
-    }, 6000); // 6 seconds of feasting
+    }, 7000); // Slightly longer for a more meditative feel
 }
+
 refreshVoid();
