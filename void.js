@@ -66,15 +66,36 @@ function spawnCrow() {
 }
 
 function playVoidSound() {
-    // A dark, low-frequency atmospheric sound
-    const voidAudio = new Audio('https://codesandbox.io/api/v1/sandboxes/f8m2p/assets/void-thrum.mp3');
-    
-    voidAudio.volume = 0.4;
-    
-    // Attempt to play and catch errors
-    voidAudio.play().catch(error => {
-        console.log("Audio blocked. Try clicking the screen first.");
-        document.getElementById('void-msg').innerText = "The crows feast in silence (Audio Blocked).";
-    });
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // This forces the browser to acknowledge the audio "brain"
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        // A slightly higher frequency (80Hz) so it's easier for speakers to catch
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(80, audioCtx.currentTime); 
+        oscillator.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 3);
+        
+        // Increased volume to 0.3 (was 0.1)
+        gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 3);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 3);
+        
+        console.log("Void sound triggered successfully.");
+    } catch(e) { 
+        console.log("Audio Error:", e); 
+    }
 }
+
 refreshVoid();
