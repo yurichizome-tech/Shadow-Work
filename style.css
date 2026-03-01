@@ -88,17 +88,19 @@ body {
 
 .crow {
     position: absolute;
-    width: 80px; /* Larger to ensure visibility */
-    height: 80px;
-    background: url('https://img.icons8.com/ios-filled/100/333333/crow.png') no-repeat;
-    background-size: contain;
+    width: 180px; 
+    height: 140px;
+    /* Use the EXACT filename you uploaded to GitHub here */
+    background: url('YOUR_FILENAME_HERE.png') no-repeat center;
+    background-size: contain; 
     pointer-events: none;
-    z-index: 100; /* Makes sure they fly OVER the text box */
+    z-index: 1000;
+    /* This makes even a colored crow look like a dark shadow */
+    filter: brightness(0) opacity(0.8); 
 }
 
 @keyframes flyAway {
-    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-    20% { opacity: 1; }
-    100% { transform: translate(300px, -600px) scale(2); opacity: 0; }
+    0% { transform: translate(-50%, -50%) scale(0.4) rotate(5deg); opacity: 0; }
+    15% { opacity: 1; }
+    100% { transform: translate(300px, -550px) scale(2) rotate(-10deg); opacity: 0; }
 }
-
