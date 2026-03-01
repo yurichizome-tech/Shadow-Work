@@ -1,5 +1,11 @@
+// 1. FORCED PRELOAD
 const murderSound = new Audio('Crow murder caw.mp3');
+murderSound.preload = 'auto';
+murderSound.load(); // Forces the browser to start downloading NOW
+
 const singleSound = new Audio('single crow caw.mp3');
+singleSound.preload = 'auto';
+singleSound.load();
 
 function refreshVoid() {
     const container = document.getElementById('void');
@@ -29,16 +35,25 @@ function feedCrows() {
 
     if (!area || area.value.trim() === "") return;
 
-    // Start Audio
+    // 2. THE INSTANT FIRE
+    // Setting currentTime to 0 and playing immediately 
     murderSound.currentTime = 0;
-    murderSound.play().catch(e => console.log("Audio blocked"));
+    const playPromise = murderSound.play();
 
-    // Fade UI and show crows
+    if (playPromise !== undefined) {
+        playPromise.catch(error => {
+            console.log("Browser blocked initial autoplay. Interacting with the page first helps.");
+        });
+    }
+
+    // 3. THE VISUAL TRANSITION (Now in sync with sound)
     content.style.opacity = "0";
     voidDiv.style.backgroundImage = "url('crow.gif')";
 
     setTimeout(() => {
+        singleSound.currentTime = 0;
         singleSound.play().catch(e => {});
+        
         voidDiv.style.backgroundImage = "none";
         content.style.opacity = "1";
         area.value = "";
