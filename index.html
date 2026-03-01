@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Sovereign Grimoire</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="bar-bg"><div id="bar-fill"></div></div>
+    <h2 id="clock">00:00:00</h2>
+
+    <nav class="nav-bar">
+        <button class="nav-btn" onclick="openBranch('garden')">MY GARDEN</button>
+        <button class="nav-btn" onclick="openBranch('torches')">TORCHES</button>
+        <button class="nav-btn" onclick="openBranch('vault')">THE VAULT</button>
+        <button class="nav-btn" onclick="openBranch('void')">THE VOID</button>
+    </nav>
+
+    <main id="content">
+        <div id="garden" class="branch-content" style="display:none;"></div>
+        <div id="torches" class="branch-content" style="display:none;"></div>
+        <div id="vault" class="branch-content" style="display:none;"></div>
+        <div id="void" class="branch-content" style="display:none;"></div>
+    </main>
+
+    <script src="garden.js"></script>
+    <script src="torches.js"></script>
+    <script src="vault.js"></script>
+    <script src="void.js"></script>
+</body>
+</html>
