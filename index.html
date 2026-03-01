@@ -29,41 +29,46 @@
     <script src="vault.js"></script>
     <script src="void.js"></script>
 
-    <script>
-        function openBranch(branchId) {
-            console.log("Switching to branch: " + branchId); // Diagnostic
+    function openBranch(branchId) {
+        console.log("Switching to branch: " + branchId);
+        
+        // 1. Hide all sections
+        const sections = document.querySelectorAll('.branch-content');
+        sections.forEach(s => s.style.display = 'none');
+        
+        // 2. Show the target section
+        const target = document.getElementById(branchId);
+        if (target) { 
+            target.style.display = 'block'; 
             
-            // Hide all sections
-            const sections = document.querySelectorAll('.branch-content');
-            sections.forEach(s => s.style.display = 'none');
-            
-            // Show the target section
-            const target = document.getElementById(branchId);
-            if (target) { 
-                target.style.display = 'block'; 
-                
-                // Specific wake-up calls for each branch
-                if (branchId === 'torches') {
-                    if (typeof refreshTorches === 'function') {
-                        refreshTorches();
-                    } else {
-                        target.innerHTML = "<p style='color:red;'>Error: torches.js not loaded yet.</p>";
-                    }
+            // 3. THE SWITCHBOARD: This wakes up the code in your .js files
+            if (branchId === 'torches') {
+                if (typeof refreshTorches === 'function') {
+                    refreshTorches();
+                } else {
+                    target.innerHTML = "<p style='color:red;'>Error: torches.js not loaded.</p>";
                 }
             }
-            
-            // Update button UI
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            if (event && event.currentTarget) {
-                event.currentTarget.classList.add('active');
+
+            if (branchId === 'garden') {
+                if (typeof refreshGarden === 'function') {
+                    refreshGarden();
+                } else {
+                    target.innerHTML = "<p style='color:red;'>Error: garden.js not loaded.</p>";
+                }
             }
         }
+        
+        // 4. Update button UI (makes the clicked button glow)
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        if (event && event.currentTarget) {
+            event.currentTarget.classList.add('active');
+        }
+    }
 
-        // Wait for everything to load before starting
-        window.onload = () => { 
-            console.log("Grimoire Loaded.");
-            openBranch('torches'); 
-        };
-    </script>
+    // This makes the Garden show up immediately when the page loads
+    window.onload = () => { 
+        openBranch('garden'); 
+    };
 </body>
 </html>
