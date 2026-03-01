@@ -62,33 +62,40 @@ function playVoidEffects() {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
 
-        // 1. THE THRUM (Low)
+        const now = audioCtx.currentTime;
+
+        // 1. THE LOW THRUM (Fade-in to prevent "Bounce")
         const thrum = audioCtx.createOscillator();
         const thrumGain = audioCtx.createGain();
         thrum.type = 'sine';
-        thrum.frequency.setValueAtTime(60, audioCtx.currentTime);
-        thrum.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 3);
-        thrumGain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        thrumGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 3);
+        thrum.frequency.setValueAtTime(55, now);
+        
+        thrumGain.gain.setValueAtTime(0, now);
+        thrumGain.gain.linearRampToValueAtTime(0.2, now + 0.1); // Smooth entry
+        thrumGain.gain.exponentialRampToValueAtTime(0.0001, now + 3);
+        
         thrum.connect(thrumGain);
         thrumGain.connect(audioCtx.destination);
         thrum.start();
-        thrum.stop(audioCtx.currentTime + 3);
+        thrum.stop(now + 3);
 
-        // 2. THE CAW (High/Sharp)
+        // 2. THE CAW (Gritty and Natural)
         const caw = audioCtx.createOscillator();
         const cawGain = audioCtx.createGain();
         caw.type = 'sawtooth';
-        caw.frequency.setValueAtTime(400, audioCtx.currentTime);
-        caw.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
-        cawGain.gain.setValueAtTime(0.03, audioCtx.currentTime);
-        cawGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+        caw.frequency.setValueAtTime(300, now);
+        caw.frequency.exponentialRampToValueAtTime(450, now + 0.1);
+        caw.frequency.exponentialRampToValueAtTime(200, now + 0.5);
+        
+        cawGain.gain.setValueAtTime(0, now);
+        cawGain.gain.linearRampToValueAtTime(0.03, now + 0.05); // Smooth entry
+        cawGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+        
         caw.connect(cawGain);
         cawGain.connect(audioCtx.destination);
         caw.start();
-        caw.stop(audioCtx.currentTime + 0.5);
+        caw.stop(now + 0.5);
 
     } catch(e) { console.log("Audio Blocked"); }
 }
-
 refreshVoid();
