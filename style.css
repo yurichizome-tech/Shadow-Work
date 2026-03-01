@@ -90,7 +90,7 @@ body {
     position: absolute;
     width: 150px; 
     height: 100px;
-    background: url('crow.png') no-repeat center; /* Change 'crow.png' to your exact filename */
+    background: url('crow.gif') no-repeat center; /* Change 'crow.png' to your exact filename */
     background-size: contain;
     background-color: rgba(0,0,0,0.5); /* The "Safety Shadow" */
     border-radius: 50%; /* Makes the safety shadow look more bird-like */
