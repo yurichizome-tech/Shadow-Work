@@ -1,3 +1,10 @@
+:root { 
+    --bg: #050505; 
+    --gold: #d4af37; 
+    --text: #d0d0d0; 
+    --accent: #ff3e3e;
+}
+
 body { 
     background-color: #050505 !important; 
     color: #d0d0d0; 
@@ -8,22 +15,6 @@ body {
     min-height: 100vh;
 }
 
-:root { 
-    --bg: #050505; 
-    --gold: #d4af37; 
-    --text: #d0d0d0; 
-    --accent: #ff3e3e;
-}
-
-body { 
-    background: var(--bg); 
-    color: var(--text); 
-    font-family: 'Garamond', serif; 
-    margin: 0; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-}
 
 /* THE CROWN (Progress Bar) */
 #bar-bg { 
