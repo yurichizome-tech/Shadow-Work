@@ -28,6 +28,12 @@
                 if (branchId === 'garden' && typeof refreshGarden === 'function') {
                     refreshGarden();
                 }
+                    if (branchId === 'vault' && typeof refreshVault === 'function') {
+                         refreshVault();
+                    }
+                    if (branchId === 'void' && typeof refreshVoid === 'function') {
+                        refreshVoid();
+                    }
             }
             
             // 4. Make the button glow
