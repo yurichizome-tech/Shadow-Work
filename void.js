@@ -1,5 +1,5 @@
 // 1. FORCED PRELOAD
-const murderSound = new Audio('Crow murder caw.mp3');
+const murderSound = new Audio('crow murder caw.mp3');
 murderSound.preload = 'auto';
 murderSound.load(); // Forces the browser to start downloading NOW
 
