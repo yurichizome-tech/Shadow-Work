@@ -22,25 +22,23 @@ function feedCrows() {
     
     if (area.value.trim() === "") return;
 
-    // 1. Play the "Void Hum" sound
+    // 1. Play the "Nuke Drop" Hum
     playVoidSound();
+    
+    // 2. Play the Crow Caw (High pitch)
+    playCawSound();
 
-    // 2. Start the fade
     area.style.opacity = "0";
     msg.innerText = "The feast begins...";
 
-    // 3. Spawn the Crows
-    for(let i=0; i<6; i++) {
-        setTimeout(spawnCrow, i * 150); // Spreads them out slightly
+    for(let i=0; i<8; i++) {
+        setTimeout(spawnCrow, i * 150);
     }
 
-    // 4. Reset after the "Feast"
     setTimeout(() => {
         area.value = "";
         area.style.opacity = "1";
         msg.innerText = "The silence returns.";
-        // Boosts progress bar
-        if (typeof updateProgressBar === 'function') updateProgressBar(5);
     }, 4000);
 }
 
@@ -88,5 +86,32 @@ function playVoidSound() {
         console.log("Audio Error:", e); 
     }
 }
+
+
+function playCawSound() {
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        // A "sawtooth" wave sounds more like a harsh bird cry
+        oscillator.type = 'sawtooth';
+        oscillator.frequency.setValueAtTime(400, audioCtx.currentTime); 
+        oscillator.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
+        oscillator.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.4);
+        
+        gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.5);
+    } catch(e) {}
+}
+
+
+
 
 refreshVoid();
