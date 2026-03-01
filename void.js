@@ -68,11 +68,17 @@ function spawnCrow() {
 function playVoidSound() {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        // This line forces the audio "brain" to wake up if it's sleeping
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
 
         oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(60, audioCtx.currentTime); // Deep bass
+        oscillator.frequency.setValueAtTime(60, audioCtx.currentTime); 
         oscillator.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 3);
         
         gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
@@ -83,7 +89,9 @@ function playVoidSound() {
 
         oscillator.start();
         oscillator.stop(audioCtx.currentTime + 3);
-    } catch(e) { console.log("Audio blocked by browser"); }
+    } catch(e) { 
+        console.log("Audio Error:", e); 
+    }
 }
 
 refreshVoid();
