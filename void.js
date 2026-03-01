@@ -3,7 +3,7 @@ function refreshVoid() {
     if (!container) return;
     
     container.innerHTML = `
-        <div style="text-align:center; padding: 40px 20px;">
+        <div style="text-align:center; padding: 40px 20px; min-height: 80vh;">
             <h2 style="color: #1a1a1a; letter-spacing: 15px; margin-bottom: 30px;">THE VOID</h2>
             
             <textarea id="void-input" 
@@ -31,22 +31,59 @@ function feedCrows() {
     
     if (area.value.trim() === "") return;
 
-    // 1. Start the fade
-    area.style.opacity = "0";
-    msg.innerText = "The crows descend...";
+    // 1. Play the "Void Hum" sound
+    playVoidSound();
 
-    // 2. The "Feast" duration (3 seconds)
+    // 2. Start the fade
+    area.style.opacity = "0";
+    msg.innerText = "The feast begins...";
+
+    // 3. Spawn the Crows
+    for(let i=0; i<6; i++) {
+        setTimeout(spawnCrow, i * 150); // Spreads them out slightly
+    }
+
+    // 4. Reset after the "Feast"
     setTimeout(() => {
-        area.value = ""; // The words are gone
-        area.style.opacity = "1"; // Reset for next time
+        area.value = "";
+        area.style.opacity = "1";
         msg.innerText = "The silence returns.";
-        
-        // Bonus: Filling the bar for "Venting"
-        if (typeof updateProgressBar === 'function') {
-            updateProgressBar(5); 
-        }
-    }, 3000);
+        // Boosts progress bar
+        if (typeof updateProgressBar === 'function') updateProgressBar(5);
+    }, 4000);
 }
 
-// Ensure it initializes
+function spawnCrow() {
+    const crow = document.createElement('div');
+    crow.className = 'crow';
+    // Positions the crow near the center/text area
+    crow.style.left = (window.innerWidth / 2 + (Math.random() * 200 - 100)) + "px";
+    crow.style.top = (window.innerHeight / 2) + "px";
+    crow.style.animation = `flyAway ${2 + Math.random()}s forwards`;
+    document.getElementById('void').appendChild(crow);
+    
+    setTimeout(() => crow.remove(), 3000);
+}
+
+function playVoidSound() {
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(60, audioCtx.currentTime); // Deep bass
+        oscillator.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 3);
+        
+        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 3);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 3);
+    } catch(e) { console.log("Audio blocked by browser"); }
+}
+
 refreshVoid();
