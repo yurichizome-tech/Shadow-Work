@@ -90,16 +90,11 @@ body {
     position: absolute;
     width: 150px; 
     height: 100px;
-    background: url('crow.gif') no-repeat center; /* Change 'crow.png' to your exact filename */
+    /* CHANGE THIS LINE FROM .png TO .gif */
+    background: url('crow.gif') no-repeat center; 
     background-size: contain;
-    background-color: rgba(0,0,0,0.5); /* The "Safety Shadow" */
-    border-radius: 50%; /* Makes the safety shadow look more bird-like */
     pointer-events: none;
     z-index: 9999;
-}
-
-@keyframes flyAway {
-    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
-    20% { opacity: 1; }
-    100% { transform: translate(300px, -600px) scale(2); opacity: 0; }
+    /* Add this to make sure it stands out against the black */
+    filter: brightness(1.2); 
 }
