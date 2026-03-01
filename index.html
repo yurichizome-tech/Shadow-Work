@@ -21,15 +21,28 @@
             <ul id="task-list"></ul>
         </div>
 
-        <div id="torches" class="branch-content" style="display:none;">
-            <h2>Torches</h2>
-            <div class="tally-container">
-                <button onclick="tally(1)">Torch 1</button>
-                <button onclick="tally(2)">Torch 2</button>
-                <button onclick="tally(3)">Torch 3</button>
-                <button onclick="tally(4)">Torch 4</button>
+               <div id="torches" class="branch-content" style="display:none;">
+            <h2>The Torches</h2>
+            <div class="tally-grid">
+                <div class="torch-item">
+                    <button onclick="tally(1)">🔥 Torch 1</button>
+                    <span id="torch-count-1">0</span>
+                </div>
+                <div class="torch-item" style="margin-top: 10px;">
+                    <button onclick="tally(2)">🔥 Torch 2</button>
+                    <span id="torch-count-2">0</span>
+                </div>
+                <div class="torch-item" style="margin-top: 10px;">
+                    <button onclick="tally(3)">🔥 Torch 3</button>
+                    <span id="torch-count-3">0</span>
+                </div>
+                <div class="torch-item" style="margin-top: 10px;">
+                    <button onclick="tally(4)">🔥 Torch 4</button>
+                    <span id="torch-count-4">0</span>
+                </div>
             </div>
         </div>
+
         
         </main>
 
