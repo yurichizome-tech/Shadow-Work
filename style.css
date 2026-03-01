@@ -65,35 +65,49 @@ body {
 /* THE VOID ROOM */
 #void {
     background-color: #000;
-    background-position: center;
+    background-position: center bottom; /* Keeps the wings at the bottom */
     background-repeat: no-repeat;
-    background-size: contain; /* Keeps the GIF from stretching or tiling */
-    min-height: 80vh;
-    transition: background-image 2s ease-in-out; /* Slower, smoother fade */
+    background-size: cover;
+    min-height: 90vh; /* Takes up more of the screen */
+    transition: background-image 1.5s ease-in-out;
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    
-    /* THE VIGNETTE: This creates the soft, dark edges */
-    box-shadow: inset 0 0 100px 50px #000; 
+    width: 100%;
 }
 
-/* This adds a secondary "misty" layer over the gif */
+/* This replaces that "long black bar" with a transparent, centered area */
+#void-content {
+    text-align: center;
+    width: 100%;
+    max-width: 600px; /* Limits the width so it's readable on desktop */
+    z-index: 5;
+    transition: opacity 1.5s ease-in-out;
+    background: transparent; 
+}
+
+#void-input {
+    width: 90%;
+    height: 150px;
+    background: rgba(10, 10, 10, 0.4); /* See-through black */
+    color: #888 !important; /* This makes your typing visible */
+    border: 1px solid #222;
+    padding: 15px;
+    font-family: 'Garamond', serif;
+    font-size: 1.2rem;
+    outline: none;
+    resize: none;
+}
+
+/* The Vignette: Softens the edges of the GIF */
 #void::after {
     content: "";
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle, transparent 30%, black 80%);
+    background: radial-gradient(circle, transparent 40%, black 95%);
     pointer-events: none;
     z-index: 2;
-}
-
-#void-content {
-    text-align: center;
-    width: 100%;
-    z-index: 5;
-    transition: opacity 1.5s ease-in-out; /* Softer fade for the text */
 }
 
 .crow-overlay {
