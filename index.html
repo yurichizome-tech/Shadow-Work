@@ -3,98 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calligo - Sovereign Build</title>
+    <title>Calligo - Main Sovereign Build</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #050505; color: #d4af37; font-family: 'Inter', sans-serif; overflow: hidden; }
-        .tab-active { border-bottom: 2px solid #d4af37; color: #fff; }
+        body { background-color: #050505; color: #d4af37; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; }
         .glass-card { background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(212, 175, 55, 0.2); }
-        .tally-btn { transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
-        .tally-btn:active { transform: scale(0.92); background: rgba(212, 175, 55, 0.1); }
-        .red-reset { border: 1px solid #7f1d1d; color: #ef4444; }
-        /* Hidden input overlay */
-        #detail-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 50; }
+        .tab-active { border-bottom: 2px solid #d4af37; color: #fff; }
+        .hidden { display: none; }
     </style>
 </head>
-<body class="h-screen flex flex-col">
+<body class="flex flex-col">
 
-    <nav class="flex justify-around p-4 border-b border-gray-900 text-xs uppercase tracking-widest">
-        <button class="tab-active">Corridor</button>
-        <button class="text-gray-600">Garden</button>
-        <button class="text-gray-600">Vault</button>
+    <nav class="flex justify-around p-4 border-b border-gray-900 text-xs uppercase tracking-widest bg-black">
+        <button onclick="switchTab('corridor')" id="tab-corridor" class="tab-active py-2">Corridor</button>
+        <button onclick="switchTab('garden')" id="tab-garden" class="text-gray-600 py-2">Garden</button>
+        <button onclick="switchTab('vault')" id="tab-vault" class="text-gray-600 py-2">Vault</button>
     </nav>
 
-    <main class="flex-1 p-6 overflow-y-auto">
-        <div class="mb-8">
-            <div class="flex justify-between text-[10px] mb-1 uppercase"><span>Alchemical Progress</span><span>5%</span></div>
-            <div class="h-1 w-full bg-gray-900 rounded-full"><div class="h-full bg-gradient-to-r from-yellow-700 to-green-700 w-[5%]"></div></div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 mb-6">
-            <button onmousedown="startTimer('The Ward')" onmouseup="endTimer()" ontouchstart="startTimer('The Ward')" ontouchend="endTimer()" class="glass-card p-6 rounded-lg tally-btn">The Ward</button>
-            <button onmousedown="startTimer('Silence')" onmouseup="endTimer()" ontouchstart="startTimer('Silence')" ontouchend="endTimer()" class="glass-card p-6 rounded-lg tally-btn">Silence</button>
-            <button onmousedown="startTimer('Whispers')" onmouseup="endTimer()" ontouchstart="startTimer('Whispers')" ontouchend="endTimer()" class="glass-card p-6 rounded-lg tally-btn text-orange-200">Whispers</button>
-            <button onmousedown="startTimer('No!')" onmouseup="endTimer()" ontouchstart="startTimer('No!')" ontouchend="endTimer()" class="glass-card p-6 rounded-lg tally-btn font-bold">"No!"</button>
-        </div>
-
-        <div class="glass-card rounded-lg p-4 h-48 overflow-y-auto text-[11px] font-mono" id="ledger">
-            <div class="text-gray-600 mb-2 border-b border-gray-800 pb-1 flex justify-between">
-                <span>SYSTEM LOG</span>
-                <button id="reset-btn" class="red-reset px-2 rounded">RESET</button>
+    <div class="flex-1 overflow-y-auto p-6">
+        
+        <section id="view-corridor">
+            <div class="mb-8">
+                <div class="flex justify-between text-[10px] mb-1 uppercase"><span>Alchemical Progress</span><span>5%</span></div>
+                <div class="h-1 w-full bg-gray-900 rounded-full"><div class="h-full bg-gradient-to-r from-yellow-700 to-green-700 w-[5%]"></div></div>
             </div>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+                <button onmousedown="handlePress('The Ward')" onmouseup="handleRelease()" class="glass-card p-8 rounded-lg">The Ward</button>
+                <button onmousedown="handlePress('Silence')" onmouseup="handleRelease()" class="glass-card p-8 rounded-lg">Silence</button>
+                <button onmousedown="handlePress('Whispers')" onmouseup="handleRelease()" class="glass-card p-8 rounded-lg text-orange-200">Whispers</button>
+                <button onmousedown="handlePress('No!')" onmouseup="handleRelease()" class="glass-card p-8 rounded-lg font-bold">"No!"</button>
             </div>
-    </main>
+            <div class="glass-card rounded-lg p-4 h-48 overflow-y-auto text-[11px] font-mono" id="ledger">
+                <div class="flex justify-between border-b border-gray-800 pb-1 mb-2"><span>SYSTEM LOG</span><button class="text-red-600 border border-red-900 px-2 rounded uppercase text-[9px]">Reset</button></div>
+            </div>
+        </section>
 
-    <div id="detail-overlay" class="flex items-center justify-center p-6">
+        <section id="view-garden" class="hidden">
+            <h2 class="text-center mt-10 text-gray-500 italic">The Garden is being tilled...</h2>
+        </section>
+
+        <section id="view-vault" class="hidden">
+            <h2 class="text-center mt-10 text-red-900/50 uppercase tracking-[0.2em]">Vault Sealed</h2>
+        </section>
+
+    </div>
+
+    <div id="overlay" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-6">
         <div class="glass-card w-full p-6 rounded-2xl">
-            <h2 id="detail-title" class="mb-4 text-center">Add Detail</h2>
-            <textarea id="detail-text" class="w-full bg-black border border-gray-800 p-3 rounded mb-4" placeholder="Optional notes..."></textarea>
-            <button onclick="saveDetail()" class="w-full py-3 bg-yellow-900/20 border border-yellow-700 rounded-lg">Save & Return</button>
+            <h3 id="overlay-title" class="mb-4">Detail</h3>
+            <textarea id="overlay-input" class="w-full bg-black border border-gray-800 p-3 rounded mb-4" placeholder="Add detail..."></textarea>
+            <button onclick="saveDetail()" class="w-full py-3 border border-yellow-700 rounded-lg">Save</button>
         </div>
     </div>
 
     <script>
-        let timer;
-        let currentType = "";
-
-        function startTimer(type) {
-            currentType = type;
-            timer = setTimeout(() => {
-                showDetail(type);
-            }, 800); // 1 second long press
+        function switchTab(tab) {
+            ['corridor', 'garden', 'vault'].forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+                document.getElementById(`tab-${t}`).classList.remove('tab-active', 'text-white');
+                document.getElementById(`tab-${t}`).classList.add('text-gray-600');
+            });
+            document.getElementById(`view-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.add('tab-active', 'text-white');
         }
 
-        function endTimer() {
-            if (timer) {
-                clearTimeout(timer);
-                if (currentType !== "") {
-                    logEntry(currentType, "Standard Tally");
-                    currentType = "";
-                }
-            }
+        let pressTimer;
+        let activeType = "";
+        function handlePress(type) {
+            activeType = type;
+            pressTimer = setTimeout(() => {
+                document.getElementById('overlay-title').innerText = `Detail: ${type}`;
+                document.getElementById('overlay').classList.remove('hidden');
+                activeType = "";
+            }, 1000);
         }
-
-        function showDetail(type) {
-            clearTimeout(timer);
-            currentType = ""; // Prevent double log
-            document.getElementById('detail-title').innerText = `Detail: ${type}`;
-            document.getElementById('detail-overlay').style.display = 'flex';
+        function handleRelease() {
+            clearTimeout(pressTimer);
+            if(activeType !== "") { log(activeType, "Standard Tally"); activeType = ""; }
         }
-
         function saveDetail() {
-            const text = document.getElementById('detail-text').value;
-            logEntry(document.getElementById('detail-title').innerText.replace('Detail: ', ''), text);
-            document.getElementById('detail-overlay').style.display = 'none';
-            document.getElementById('detail-text').value = "";
+            log(document.getElementById('overlay-title').innerText.replace('Detail: ',''), document.getElementById('overlay-input').value);
+            document.getElementById('overlay').classList.add('hidden');
+            document.getElementById('overlay-input').value = "";
         }
-
-        function logEntry(type, note) {
-            const ledger = document.getElementById('ledger');
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const div = document.createElement('div');
-            div.className = "mb-1 border-l border-yellow-900 pl-2";
-            div.innerHTML = `<span class="text-gray-600">[${time}]</span> ${type}: ${note}`;
-            ledger.prepend(div);
+        function log(type, note) {
+            const entry = document.createElement('div');
+            entry.innerHTML = `<span class="text-gray-600">[${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}]</span> ${type}: ${note}`;
+            document.getElementById('ledger').prepend(entry);
         }
     </script>
 </body>
