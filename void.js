@@ -1,26 +1,21 @@
 function refreshVoid() {
     const container = document.getElementById('void');
     if (!container) return;
-    
     container.innerHTML = `
         <div style="text-align:center; padding: 40px 20px;">
-            <h2 style="color: #111; letter-spacing: 15px; margin-bottom: 30px;">THE VOID</h2>
-            
-            <textarea id="void-input" 
-                placeholder="Release to the crows..." 
-                style="width: 90%; height: 250px; background: #050505; color: #555; 
-                       border: 1px solid #111; padding: 20px; font-family: 'Garamond', serif; 
-                       font-size: 1.1rem; outline: none; transition: opacity 3s ease-in-out;"></textarea>
-            
+            <h2 style="color: #111; letter-spacing: 15px;">THE VOID</h2>
+            <textarea id="void-input" placeholder="Release to the crows..." 
+                style="width: 90%; height: 250px; background: #050505; color: #444; 
+                       border: 1px solid #111; padding: 20px; font-family: serif; 
+                       transition: opacity 3s;"></textarea>
             <div style="margin-top: 30px;">
                 <button onmousedown="playVoidEffects()" onclick="feedCrows()" 
-                    style="background: none; border: 1px solid #222; color: #444; 
-                           padding: 12px 30px; cursor: pointer; letter-spacing: 3px; font-size: 0.8rem;">
+                    style="background: none; border: 1px solid #222; color: #333; 
+                           padding: 12px 30px; cursor: pointer; letter-spacing: 3px;">
                     FEED THE CROWS
                 </button>
             </div>
-            
-            <p id="void-msg" style="color: #222; margin-top: 20px; font-style: italic; font-size: 0.8rem;"></p>
+            <p id="void-msg" style="color: #222; margin-top: 20px; font-style: italic;"></p>
         </div>
     `;
 }
@@ -28,74 +23,48 @@ function refreshVoid() {
 function feedCrows() {
     const area = document.getElementById('void-input');
     const msg = document.getElementById('void-msg');
+    const voidDiv = document.getElementById('void');
+
     if (!area || area.value.trim() === "") return;
 
+    console.log("Feast Initiated"); // Check your browser console (F12) for this
+    
     area.style.opacity = "0";
     msg.innerText = "The feast begins...";
 
-    // Spawn 8 crows
-    for(let i=0; i<8; i++) {
-        setTimeout(spawnCrow, i * 150);
+    for(let i=0; i<6; i++) {
+        setTimeout(() => {
+            const crow = document.createElement('div');
+            crow.className = 'crow';
+            crow.style.left = "50%";
+            crow.style.top = "50%";
+            crow.style.animation = `flyAway ${2 + Math.random()}s ease-in forwards`;
+            voidDiv.appendChild(crow);
+            setTimeout(() => crow.remove(), 3000);
+        }, i * 200);
     }
 
     setTimeout(() => {
         area.value = "";
         area.style.opacity = "1";
         msg.innerText = "The silence returns.";
-        if (typeof updateProgressBar === 'function') updateProgressBar(5);
     }, 4000);
-}
-
-function spawnCrow() {
-    const crow = document.createElement('div');
-    crow.className = 'crow';
-    // Center of the screen
-    crow.style.left = "50%";
-    crow.style.top = "50%";
-    crow.style.animation = `flyAway ${2 + Math.random()}s ease-in forwards`;
-    document.getElementById('void').appendChild(crow);
-    setTimeout(() => crow.remove(), 3000);
 }
 
 function playVoidEffects() {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
-
-        const now = audioCtx.currentTime;
-
-        // 1. THE LOW THRUM (Fade-in to prevent "Bounce")
-        const thrum = audioCtx.createOscillator();
-        const thrumGain = audioCtx.createGain();
-        thrum.type = 'sine';
-        thrum.frequency.setValueAtTime(55, now);
-        
-        thrumGain.gain.setValueAtTime(0, now);
-        thrumGain.gain.linearRampToValueAtTime(0.2, now + 0.1); // Smooth entry
-        thrumGain.gain.exponentialRampToValueAtTime(0.0001, now + 3);
-        
-        thrum.connect(thrumGain);
-        thrumGain.connect(audioCtx.destination);
-        thrum.start();
-        thrum.stop(now + 3);
-
-        // 2. THE CAW (Gritty and Natural)
-        const caw = audioCtx.createOscillator();
-        const cawGain = audioCtx.createGain();
-        caw.type = 'sawtooth';
-        caw.frequency.setValueAtTime(300, now);
-        caw.frequency.exponentialRampToValueAtTime(450, now + 0.1);
-        caw.frequency.exponentialRampToValueAtTime(200, now + 0.5);
-        
-        cawGain.gain.setValueAtTime(0, now);
-        cawGain.gain.linearRampToValueAtTime(0.03, now + 0.05); // Smooth entry
-        cawGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
-        
-        caw.connect(cawGain);
-        cawGain.connect(audioCtx.destination);
-        caw.start();
-        caw.stop(now + 0.5);
-
-    } catch(e) { console.log("Audio Blocked"); }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(60, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 2);
+    } catch(e) { console.log("Audio Error"); }
 }
+
 refreshVoid();
