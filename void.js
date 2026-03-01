@@ -66,32 +66,15 @@ function spawnCrow() {
 }
 
 function playVoidSound() {
-    try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        // This line forces the audio "brain" to wake up if it's sleeping
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(60, audioCtx.currentTime); 
-        oscillator.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 3);
-        
-        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 3);
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 3);
-    } catch(e) { 
-        console.log("Audio Error:", e); 
-    }
+    // A dark, low-frequency atmospheric sound
+    const voidAudio = new Audio('https://codesandbox.io/api/v1/sandboxes/f8m2p/assets/void-thrum.mp3');
+    
+    voidAudio.volume = 0.4;
+    
+    // Attempt to play and catch errors
+    voidAudio.play().catch(error => {
+        console.log("Audio blocked. Try clicking the screen first.");
+        document.getElementById('void-msg').innerText = "The crows feast in silence (Audio Blocked).";
+    });
 }
-
 refreshVoid();
