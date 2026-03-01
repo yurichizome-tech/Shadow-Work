@@ -71,26 +71,34 @@ body {
 }
 
 
-/* --- VOID ATMOSPHERE --- */
+/* THE VOID ROOM */
 #void {
-    background: radial-gradient(circle, #0a0a0a 0%, #000 100%);
+    background: #000;
     position: relative;
+    min-height: 80vh;
     overflow: hidden;
+}
+
+#void-input {
+    position: relative;
+    z-index: 5; /* Keeps the box above the background */
+    display: block;
+    margin: 0 auto;
 }
 
 .crow {
     position: absolute;
-    width: 60px; /* Bigger */
-    height: 60px;
+    width: 80px; /* Larger to ensure visibility */
+    height: 80px;
     background: url('https://img.icons8.com/ios-filled/100/333333/crow.png') no-repeat;
     background-size: contain;
-    opacity: 0;
     pointer-events: none;
-    z-index: 9999; /* Forces them to the front */
+    z-index: 100; /* Makes sure they fly OVER the text box */
 }
 
 @keyframes flyAway {
-    0% { transform: translate(0, 0) scale(0.5) rotate(0deg); opacity: 0.8; }
-    100% { transform: translate(200px, -400px) scale(1.5) rotate(-20deg); opacity: 0; }
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translate(300px, -600px) scale(2); opacity: 0; }
 }
 
