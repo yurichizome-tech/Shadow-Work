@@ -3,94 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calligo - Main Sovereign Build</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background-color: #050505; color: #d4af37; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; }
-        .glass-card { background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(212, 175, 55, 0.2); }
-        .tab-active { border-bottom: 2px solid #d4af37; color: #fff; }
-        .hidden { display: none; }
-    </style>
+    <title>The Grimoire Hub</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="flex flex-col">
+<body>
 
-    <nav class="flex justify-around p-4 border-b border-gray-900 text-xs uppercase tracking-widest bg-black">
-        <button onclick="switchTab('corridor')" id="tab-corridor" class="tab-active py-2">Corridor</button>
-        <button onclick="switchTab('garden')" id="tab-garden" class="text-gray-600 py-2">Garden</button>
-        <button onclick="switchTab('vault')" id="tab-vault" class="text-gray-600 py-2">Vault</button>
+    <nav id="main-tabs">
+        <button onclick="openBranch('garden')">My Garden</button>
+        <button onclick="openBranch('torches')">Torches</button>
+        <button onclick="openBranch('vault')">Locked Vault</button>
+        <button onclick="openBranch('void')">The Void</button>
     </nav>
 
-    <div class="flex-1 overflow-y-auto p-6">
-        
-        <section id="view-corridor">
-            <div class="mb-8">
-                <div class="flex justify-between text-[10px] mb-1 uppercase"><span>Alchemical Progress</span><span>5%</span></div>
-                <div class="h-1 w-full bg-gray-900 rounded-full"><div class="h-full bg-gradient-to-r from-yellow-700 to-green-700 w-[5%]"></div></div>
-            </div>
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <button onmousedown="handlePress('The Ward')" onmouseup="handleRelease()" class="glass-card p-8 rounded-lg">The Ward</button>
-                <button onmousedown="handlePress('Silence')" onmouseup="handleRelease()" class="glass-card p-8 rounded-lg">Silence</button>
-                <button onmousedown="handlePress('Whispers')" onmouseup="handleRelease()" class="glass-card p-8 rounded-lg text-orange-200">Whispers</button>
-                <button onmousedown="handlePress('No!')" onmouseup="handleRelease()" class="glass-card p-8 rounded-lg font-bold">"No!"</button>
-            </div>
-            <div class="glass-card rounded-lg p-4 h-48 overflow-y-auto text-[11px] font-mono" id="ledger">
-                <div class="flex justify-between border-b border-gray-800 pb-1 mb-2"><span>SYSTEM LOG</span><button class="text-red-600 border border-red-900 px-2 rounded uppercase text-[9px]">Reset</button></div>
-            </div>
-        </section>
-
-        <section id="view-garden" class="hidden">
-            <h2 class="text-center mt-10 text-gray-500 italic">The Garden is being tilled...</h2>
-        </section>
-
-        <section id="view-vault" class="hidden">
-            <h2 class="text-center mt-10 text-red-900/50 uppercase tracking-[0.2em]">Vault Sealed</h2>
-        </section>
-
-    </div>
-
-    <div id="overlay" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-6">
-        <div class="glass-card w-full p-6 rounded-2xl">
-            <h3 id="overlay-title" class="mb-4">Detail</h3>
-            <textarea id="overlay-input" class="w-full bg-black border border-gray-800 p-3 rounded mb-4" placeholder="Add detail..."></textarea>
-            <button onclick="saveDetail()" class="w-full py-3 border border-yellow-700 rounded-lg">Save</button>
+    <main id="content-display">
+        <div id="garden" class="branch-content">
+            <h2>My Garden</h2>
+            <ul id="task-list"></ul>
         </div>
-    </div>
 
-    <script>
-        function switchTab(tab) {
-            ['corridor', 'garden', 'vault'].forEach(t => {
-                document.getElementById(`view-${t}`).classList.add('hidden');
-                document.getElementById(`tab-${t}`).classList.remove('tab-active', 'text-white');
-                document.getElementById(`tab-${t}`).classList.add('text-gray-600');
-            });
-            document.getElementById(`view-${tab}`).classList.remove('hidden');
-            document.getElementById(`tab-${tab}`).classList.add('tab-active', 'text-white');
-        }
+        <div id="torches" class="branch-content" style="display:none;">
+            <h2>Torches</h2>
+            <div class="tally-container">
+                <button onclick="tally(1)">Torch 1</button>
+                <button onclick="tally(2)">Torch 2</button>
+                <button onclick="tally(3)">Torch 3</button>
+                <button onclick="tally(4)">Torch 4</button>
+            </div>
+        </div>
+        
+        </main>
 
-        let pressTimer;
-        let activeType = "";
-        function handlePress(type) {
-            activeType = type;
-            pressTimer = setTimeout(() => {
-                document.getElementById('overlay-title').innerText = `Detail: ${type}`;
-                document.getElementById('overlay').classList.remove('hidden');
-                activeType = "";
-            }, 1000);
-        }
-        function handleRelease() {
-            clearTimeout(pressTimer);
-            if(activeType !== "") { log(activeType, "Standard Tally"); activeType = ""; }
-        }
-        function saveDetail() {
-            log(document.getElementById('overlay-title').innerText.replace('Detail: ',''), document.getElementById('overlay-input').value);
-            document.getElementById('overlay').classList.add('hidden');
-            document.getElementById('overlay-input').value = "";
-        }
-        function log(type, note) {
-            const entry = document.createElement('div');
-            entry.innerHTML = `<span class="text-gray-600">[${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}]</span> ${type}: ${note}`;
-            document.getElementById('ledger').prepend(entry);
-        }
-    </script>
+    <script src="garden.js"></script>
+    <script src="torches.js"></script>
+    <script src="vault.js"></script>
+    <script src="void.js"></script>
 </body>
 </html>
