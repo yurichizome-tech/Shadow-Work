@@ -1,4 +1,3 @@
-// 1. PRELOAD THE SOUNDS (This stops the delay)
 const murderSound = new Audio('Crow murder caw.mp3');
 const singleSound = new Audio('single crow caw.mp3');
 
@@ -8,16 +7,16 @@ function refreshVoid() {
     
     container.innerHTML = `
         <div id="void-content">
-            <h2 style="color: #111; letter-spacing: 15px; margin-bottom: 20px;">THE VOID</h2>
+            <h2 style="color: #222; letter-spacing: 12px; margin-bottom: 20px; font-weight: normal;">THE VOID</h2>
             <textarea id="void-input" placeholder="Release to the crows..."></textarea>
-            <div style="margin-top: 30px;">
+            <div style="margin-top: 20px;">
                 <button onclick="feedCrows()" 
                     style="background: none; border: 1px solid #222; color: #444; 
-                           padding: 12px 30px; cursor: pointer; letter-spacing: 3px;">
+                           padding: 10px 25px; cursor: pointer; letter-spacing: 3px; font-family: serif;">
                     FEED THE CROWS
                 </button>
             </div>
-            <p id="void-msg" style="color: #222; margin-top: 20px; font-style: italic;"></p>
+            <p id="void-msg" style="color: #333; margin-top: 20px; font-style: italic; font-size: 0.9rem;"></p>
         </div>
     `;
 }
@@ -30,27 +29,21 @@ function feedCrows() {
 
     if (!area || area.value.trim() === "") return;
 
-    // 2. PLAY SOUND (Phones require a user-click to trigger sound)
-    murderSound.currentTime = 0; // Resets sound to start immediately
-    murderSound.play().catch(e => console.log("Mobile tap needed"));
+    // Start Audio
+    murderSound.currentTime = 0;
+    murderSound.play().catch(e => console.log("Audio blocked"));
 
-    // 3. CINEMATIC TRANSITION
+    // Fade UI and show crows
     content.style.opacity = "0";
-    msg.innerText = "The feast begins...";
-    
-    // Smoothly bring the crows in
-    setTimeout(() => {
-        voidDiv.style.backgroundImage = "url('crow.gif')";
-    }, 500);
+    voidDiv.style.backgroundImage = "url('crow.gif')";
 
-    // 4. RESET WITH THE SINGLE CAW
     setTimeout(() => {
         singleSound.play().catch(e => {});
         voidDiv.style.backgroundImage = "none";
         content.style.opacity = "1";
         area.value = "";
         msg.innerText = "The silence returns.";
-    }, 7000); // Slightly longer for a more meditative feel
+    }, 7000);
 }
 
 refreshVoid();
