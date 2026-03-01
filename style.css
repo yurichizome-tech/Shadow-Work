@@ -80,17 +80,17 @@ body {
 
 .crow {
     position: absolute;
-    width: 40px;
-    height: 40px;
-    background: url('https://img.icons8.com/ios-filled/50/333333/crow.png') no-repeat;
+    width: 60px; /* Bigger */
+    height: 60px;
+    background: url('https://img.icons8.com/ios-filled/100/333333/crow.png') no-repeat;
     background-size: contain;
     opacity: 0;
     pointer-events: none;
-    z-index: 10;
+    z-index: 9999; /* Forces them to the front */
 }
 
 @keyframes flyAway {
-    0% { transform: translate(0, 0) scale(1); opacity: 0.5; }
-    100% { transform: translate(100px, -200px) scale(0); opacity: 0; }
+    0% { transform: translate(0, 0) scale(0.5) rotate(0deg); opacity: 0.8; }
+    100% { transform: translate(200px, -400px) scale(1.5) rotate(-20deg); opacity: 0; }
 }
 
