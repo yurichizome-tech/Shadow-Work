@@ -12,8 +12,17 @@ function refreshVault() {
 
 function checkKey() {
     const input = document.getElementById('pass-box').value;
+    const vaultContainer = document.getElementById('vault');
+    
     if(input.toLowerCase() === "kleidouchos") {
-        openBranch('void'); // Unlocks the Void
+        // Instead of jumping to the Void, we show the Secret content
+        vaultContainer.innerHTML = `
+            <div style="padding:20px; color:var(--gold);">
+                <h3>THE INNER SANCTUM</h3>
+                <p>The gate is open. Your sacred records go here.</p>
+                <textarea style="width:100%; height:200px; background:#111; color:white; border:1px solid var(--gold);"></textarea>
+            </div>
+        `;
     } else {
         alert("The gate remains closed.");
     }
