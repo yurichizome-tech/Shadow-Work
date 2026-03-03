@@ -21,6 +21,30 @@ function App() {
     }));
   };
 
+  .echo-wrapper {
+  margin-top: 50px;
+}
+
+.progress-container {
+  width: 100%;
+  height: 10px;
+  background: #222;
+  margin-top: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: #FFD700; /* Gold progress */
+  transition: width 0.05s linear;
+}
+
+.active-hold {
+  transform: scale(0.95);
+  border-color: #FFD700 ! from;
+}
+  
   return (
     <div className="ward-container">
       <h1>Book of Shadows</h1>
