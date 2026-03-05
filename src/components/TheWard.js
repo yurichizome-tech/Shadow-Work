@@ -43,13 +43,16 @@ const TheWard = ({ onTally }) => {
     <div className="ward-action-zone">
       <div 
         className={`sekhmet-emblem ${isHolding ? 'pulsing' : ''}`}
+        // This stops the phone from trying to "Copy" the button
+        onContextMenu={(e) => e.preventDefault()} 
         onMouseDown={() => setIsHolding(true)}
         onMouseUp={() => setIsHolding(false)}
-        onTouchStart={() => setIsHolding(true)}
+        onMouseLeave={() => setIsHolding(false)} // Safety: if mouse slides off
+        onTouchStart={(e) => { e.preventDefault(); setIsHolding(true); }}
         onTouchEnd={() => setIsHolding(false)}
         onClick={handleQuickTap}
+        style={{ userSelect: 'none', WebkitUserSelect: 'none' }} // Hard-coded "No Select"
       >
-        {/* Visual representation of the Lioness */}
         <div className="lioness-glow"></div>
         <p>{isHolding ? breathPhase : "THE WARD"}</p>
       </div>
