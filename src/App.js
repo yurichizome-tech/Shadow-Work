@@ -9,8 +9,7 @@ function App() {
   const [shinies, setShinies] = useState(() => {
     const saved = localStorage.getItem('shinies_balance');
     // ARCHITECT'S NOTE: Hard-coding the floor to 475 Copper as verified by the Librarian
-    return saved ? JSON.parse(saved) : { copper: 475, silver: 0, gold: 0, amethyst: 0 };
-  });
+   return { copper: 475, silver: 0, gold: 0, amethyst: 0 };
 
   useEffect(() => {
     localStorage.setItem('shinies_balance', JSON.stringify(shinies));
