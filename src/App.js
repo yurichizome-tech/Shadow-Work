@@ -1,51 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './style.css';
 import TheEcho from './components/TheEcho'; 
-// Note: We will create 'TheWard' next to handle the Sekhmet Ritual
 import TheWard from './components/TheWard'; 
+import TheTorches from './components/TheTorches';
+import TheVoid from './components/TheVoid';
+import Garden from './components/Garden';
 
 function App() {
-  // --- THE BANK (Logic for your Shinies) ---
-  const [shinies, setShinies] = useState(() => {
-    const saved = localStorage.getItem('shinies_balance');
-    // ARCHITECT'S NOTE: Hard-coding the floor to 475 Copper
-    return { copper: 475, silver: 0, gold: 0, amethyst: 0 };
-  }); // <--- THIS WAS MISSING
-
-  useEffect(() => {
-    localStorage.setItem('shinies_balance', JSON.stringify(shinies));
-  }, [shinies]);
+  const [activeTab, setActiveTab] = useState('ward'); 
+  const [shinies, setShinies] = useState({ copper: 475, silver: 0, gold: 0 });
 
   const addShinies = (type, amount) => {
-    setShinies(prev => ({
-      ...prev,
-      [type]: prev[type] + amount
-    }));
+    setShinies(prev => ({ ...prev, [type]: prev[type] + amount }));
   };
 
   return (
     <div className="ward-container">
-      <header>
-        <h1>BOOK OF SHADOWS</h1>
-        <div className="torch-aura"></div>
-      </header>
+      <nav className="nav-bar">
+        <button onClick={() => setActiveTab('torches')} className={activeTab === 'torches' ? 'active' : ''}>TORCHES</button>
+        <button onClick={() => setActiveTab('ward')} className={activeTab === 'ward' ? 'active' : ''}>THE WARD</button>
+        <button onClick={() => setActiveTab('garden')} className={activeTab === 'garden' ? 'active' : ''}>GARDEN</button>
+        <button onClick={() => setActiveTab('void')} className={activeTab === 'void' ? 'active' : ''}>THE VOID</button>
+      </nav>
 
-      {/* THE BANK DISPLAY */}
       <div className="stats">
-        <p>COPPER: <span className="shiny-count">{shinies.copper}</span></p>
+        COPPER: <span className="shiny-count">{shinies.copper}</span>
       </div>
 
       <main>
-        {/* THE ECHO: For repelling intrusive voices */}
-        <TheEcho onTally={addShinies} />
-        
-        {/* THE WARD: This is where we will place the Sekhmet Ritual next */}
-        <TheWard onTally={addShinies} />
+        {activeTab === 'torches' && <TheTorches onTally={addShinies} />}
+        {activeTab === 'ward' && (
+          <>
+            <TheEcho onTally={addShinies} />
+            <TheWard onTally={addShinies} />
+          </>
+        )}
+        {activeTab === 'garden' && <Garden />}
+        {activeTab === 'void' && <TheVoid />}
       </main>
-
-      <footer className="footer-notes">
-        <p>Architect: Calligo | Sovereign: Arasielle</p>
-      </footer>
     </div>
   );
 }
