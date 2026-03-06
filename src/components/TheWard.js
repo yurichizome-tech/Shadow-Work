@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const TheWard = ({ onTally }) => {
   const [isHolding, setIsHolding] = useState(false);
   const [timer, setTimer] = useState(0);
-  const [breathPhase, setBreathPhase] = useState(''); // In, Hold, Out, Hold
+  const [breathPhase, setBreathPhase] = useState('');
+  const holdDurationRef = useRef(0); // Track how long user held
 
   // --- THE RITUAL LOGIC (4-4-4-4 Box Breathing) ---
   useEffect(() => {
     let interval;
     if (isHolding) {
+      holdDurationRef.current = 0; // Reset on new hold
       interval = setInterval(() => {
         setTimer((prev) => prev + 1);
+        holdDurationRef.current += 1;
       }, 1000);
     } else {
       setTimer(0);
@@ -27,15 +30,25 @@ const TheWard = ({ onTally }) => {
     else if (timer > 8 && timer <= 12) setBreathPhase('EXHALE (4s)');
     else if (timer > 12 && timer <= 16) setBreathPhase('HOLD (4s)');
     else if (timer > 16) {
-      onTally('copper', 25); // Survival Tally for completing the ritual
+      onTally('copper', 25);
       setIsHolding(false);
       alert("Ward Set. 25 Copper added to the Hoard.");
     }
   }, [timer, onTally]);
 
-  const handleQuickTap = () => {
-    if (!isHolding) {
-      onTally('copper', 5); // Immediate +5 for a simple "No"
+  const handleMouseUp = () => {
+    setIsHolding(false);
+    // Only reward quick tap if held for less than 4 seconds
+    if (holdDurationRef.current < 4) {
+      onTally('copper', 5);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsHolding(false);
+    // Only reward quick tap if held for less than 4 seconds
+    if (holdDurationRef.current < 4) {
+      onTally('copper', 5);
     }
   };
 
@@ -43,15 +56,13 @@ const TheWard = ({ onTally }) => {
     <div className="ward-action-zone">
       <div 
         className={`sekhmet-emblem ${isHolding ? 'pulsing' : ''}`}
-        // This stops the phone from trying to "Copy" the button
         onContextMenu={(e) => e.preventDefault()} 
         onMouseDown={() => setIsHolding(true)}
-        onMouseUp={() => setIsHolding(false)}
-        onMouseLeave={() => setIsHolding(false)} // Safety: if mouse slides off
+        onMouseUp={handleMouseUp}
+        onMouseLeave={() => setIsHolding(false)}
         onTouchStart={(e) => { e.preventDefault(); setIsHolding(true); }}
-        onTouchEnd={() => setIsHolding(false)}
-        onClick={handleQuickTap}
-        style={{ userSelect: 'none', WebkitUserSelect: 'none' }} // Hard-coded "No Select"
+        onTouchEnd={handleTouchEnd}
+        style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
       >
         <div className="lioness-glow"></div>
         <p>{isHolding ? breathPhase : "THE WARD"}</p>
