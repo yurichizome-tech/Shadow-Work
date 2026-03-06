@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
+import './style.css';
 import TheEcho from './components/TheEcho'; 
 // Note: We will create 'TheWard' next to handle the Sekhmet Ritual
 import TheWard from './components/TheWard'; 
@@ -48,6 +48,53 @@ function App() {
       </footer>
     </div>
   );
+}
+
+/* --- THE TREASURY DISPLAY --- */
+.stats {
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.5);
+  border-bottom: 2px solid #cd7f32; /* Bronze color */
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.shiny-count {
+  color: #cd7f32;
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+/* --- THE WARD ACTION ZONE --- */
+.ward-action-zone {
+  margin-top: 30px;
+  text-align: center;
+}
+
+.sekhmet-emblem {
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+  background: #4a0404; /* Deep Blood Red */
+  border: 4px solid #cd7f32;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.sekhmet-emblem.pulsing {
+  box-shadow: 0 0 20px #ff4500;
+  transform: scale(1.1);
+}
+
+.hint-text {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 10px;
 }
 
 export default App;
